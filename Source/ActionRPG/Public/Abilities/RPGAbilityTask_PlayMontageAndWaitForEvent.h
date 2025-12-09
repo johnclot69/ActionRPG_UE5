@@ -8,14 +8,14 @@
 
 class URPGAbilitySystemComponent;
 
-/** Delegate type used, EventTag and Payload may be empty if it came from the montage callbacks */
+/** 使用的委托类型，如果它来自蒙太奇回调，EventTag 和 Payload 可能为空 */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FRPGPlayMontageAndWaitForEventDelegate, FGameplayTag, EventTag, FGameplayEventData, EventData);
 
 /**
- * This task combines PlayMontageAndWait and WaitForEvent into one task, so you can wait for multiple types of activations such as from a melee combo
- * Much of this code is copied from one of those two ability tasks
- * This is a good task to look at as an example when creating game-specific tasks
- * It is expected that each game will have a set of game-specific tasks to do what they want
+ * 此任务将 PlayMontageAndWait 和 WaitForEvent 组合成一个任务，因此您可以等待多种类型的激活，例如来自近战连击
+ * 此代码大部分是从这两个能力任务之一复制而来的
+ * 在创建特定于游戏的任务时，这是一个很好的参考任务
+ * 预计每个游戏都将有一组特定于游戏的任务来做他们想做的事情
  */
 UCLASS()
 class ACTIONRPG_API URPGAbilityTask_PlayMontageAndWaitForEvent : public UAbilityTask
@@ -23,45 +23,45 @@ class ACTIONRPG_API URPGAbilityTask_PlayMontageAndWaitForEvent : public UAbility
 	GENERATED_BODY()
 
 public:
-	// Constructor and overrides
+	// 构造函数和重写
 	URPGAbilityTask_PlayMontageAndWaitForEvent(const FObjectInitializer& ObjectInitializer);
 	virtual void Activate() override;
 	virtual void ExternalCancel() override;
 	virtual FString GetDebugString() const override;
 	virtual void OnDestroy(bool AbilityEnded) override;
 
-	/** The montage completely finished playing */
+	/** 蒙太奇完全播放完成 */
 	UPROPERTY(BlueprintAssignable)
 	FRPGPlayMontageAndWaitForEventDelegate OnCompleted;
 
-	/** The montage started blending out */
+	/** 蒙太奇开始混合退出 */
 	UPROPERTY(BlueprintAssignable)
 	FRPGPlayMontageAndWaitForEventDelegate OnBlendOut;
 
-	/** The montage was interrupted */
+	/** 蒙太奇被中断 */
 	UPROPERTY(BlueprintAssignable)
 	FRPGPlayMontageAndWaitForEventDelegate OnInterrupted;
 
-	/** The ability task was explicitly cancelled by another ability */
+	/** 能力任务被另一个能力显式取消 */
 	UPROPERTY(BlueprintAssignable)
 	FRPGPlayMontageAndWaitForEventDelegate OnCancelled;
 
-	/** One of the triggering gameplay events happened */
+	/** 发生了触发游戏性事件之一 */
 	UPROPERTY(BlueprintAssignable)
 	FRPGPlayMontageAndWaitForEventDelegate EventReceived;
 
 	/**
-	 * Play a montage and wait for it end. If a gameplay event happens that matches EventTags (or EventTags is empty), the EventReceived delegate will fire with a tag and event data.
-	 * If StopWhenAbilityEnds is true, this montage will be aborted if the ability ends normally. It is always stopped when the ability is explicitly cancelled.
-	 * On normal execution, OnBlendOut is called when the montage is blending out, and OnCompleted when it is completely done playing
-	 * OnInterrupted is called if another montage overwrites this, and OnCancelled is called if the ability or task is cancelled
+	 * 播放蒙太奇并等待其结束。如果发生匹配 EventTags（或 EventTags 为空）的游戏性事件，EventReceived 委托将使用标签和事件数据触发。
+	 * 如果 StopWhenAbilityEnds 为 true，则如果能力正常结束，此蒙太奇将被中止。当能力被显式取消时，它总是停止。
+	 * 在正常执行中，OnBlendOut 在蒙太奇混合退出时调用，OnCompleted 在其完全播放完成时调用
+	 * 如果另一个蒙太奇覆盖了此蒙太奇，则调用 OnInterrupted，如果能力或任务被取消，则调用 OnCancelled
 	 *
-	 * @param TaskInstanceName Set to override the name of this task, for later querying
-	 * @param MontageToPlay The montage to play on the character
-	 * @param EventTags Any gameplay events matching this tag will activate the EventReceived callback. If empty, all events will trigger callback
-	 * @param Rate Change to play the montage faster or slower
-	 * @param bStopWhenAbilityEnds If true, this montage will be aborted if the ability ends normally. It is always stopped when the ability is explicitly cancelled
-	 * @param AnimRootMotionTranslationScale Change to modify size of root motion or set to 0 to block it entirely
+	 * @param TaskInstanceName 设置以覆盖此任务的名称，以便稍后查询
+	 * @param MontageToPlay 要在角色上播放的蒙太奇
+	 * @param EventTags 任何匹配此标签的游戏性事件都将激活 EventReceived 回调。如果为空，则所有事件都会触发回调
+	 * @param Rate 更改以更快或更慢地播放蒙太奇
+	 * @param bStopWhenAbilityEnds 如果为 true，则如果能力正常结束，此蒙太奇将被中止。当能力被显式取消时，它总是停止
+	 * @param AnimRootMotionTranslationScale 更改以修改根运动的大小，或设置为 0 以完全阻止它
 	 */
 	UFUNCTION(BlueprintCallable, Category="Ability|Tasks", meta = (HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "TRUE"))
 	static URPGAbilityTask_PlayMontageAndWaitForEvent* PlayMontageAndWaitForEvent(
@@ -75,34 +75,34 @@ public:
 		float AnimRootMotionTranslationScale = 1.f);
 
 private:
-	/** Montage that is playing */
+	/** 正在播放的蒙太奇 */
 	UPROPERTY()
 	UAnimMontage* MontageToPlay;
 
-	/** List of tags to match against gameplay events */
+	/** 与游戏性事件匹配的标签列表 */
 	UPROPERTY()
 	FGameplayTagContainer EventTags;
 
-	/** Playback rate */
+	/** 播放速率 */
 	UPROPERTY()
 	float Rate;
 
-	/** Section to start montage from */
+	/** 开始蒙太奇的片段 */
 	UPROPERTY()
 	FName StartSection;
 
-	/** Modifies how root motion movement to apply */
+	/** 修改如何应用根运动移动 */
 	UPROPERTY()
 	float AnimRootMotionTranslationScale;
 
-	/** Rather montage should be aborted if ability ends */
+	/** 如果能力结束，是否应中止蒙太奇 */
 	UPROPERTY()
 	bool bStopWhenAbilityEnds;
 
-	/** Checks if the ability is playing a montage and stops that montage, returns true if a montage was stopped, false if not. */
+	/** 检查能力是否正在播放蒙太奇并停止该蒙太奇，如果停止了蒙太奇则返回 true，否则返回 false。 */
 	bool StopPlayingMontage();
 
-	/** Returns our ability system component */
+	/** 返回我们的能力系统组件 */
 	URPGAbilitySystemComponent* GetTargetASC();
 
 	void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);

@@ -8,8 +8,8 @@
 #include "RPGBlueprintLibrary.generated.h"
 
 /**
- * Game-specific blueprint library
- * Most games will need to implement one or more blueprint function libraries to expose their native code to blueprints
+ * 特定于游戏的蓝图库
+ * 大多数游戏需要实现一个或多个蓝图函数库，以便将其原生代码暴露给蓝图
  */
 UCLASS()
 class URPGBlueprintLibrary : public UBlueprintFunctionLibrary
@@ -17,47 +17,47 @@ class URPGBlueprintLibrary : public UBlueprintFunctionLibrary
 	GENERATED_UCLASS_BODY()
 
 public:
-	/** Show the native loading screen, such as on a map transfer. If bPlayUntilStopped is false, it will be displayed for PlayTime and automatically stop */
+	/** 显示原生加载屏幕，例如在地图转换时。如果 bPlayUntilStopped 为 false，它将显示 PlayTime 的时间并自动停止 */
 	UFUNCTION(BlueprintCallable, Category = Loading)
 	static void PlayLoadingScreen(bool bPlayUntilStopped, float PlayTime);
 
-	/** Turns off the native loading screen if it is visible. This must be called if bPlayUntilStopped was true */
+	/** 如果可见，则关闭原生加载屏幕。如果 bPlayUntilStopped 为 true，则必须调用此函数 */
 	UFUNCTION(BlueprintCallable, Category = Loading)
 	static void StopLoadingScreen();
 
-	/** Returns true if this is being run from an editor preview */
+	/** 如果正在从编辑器预览运行，则返回 true */
 	UFUNCTION(BlueprintPure, Category = Loading)
 	static bool IsInEditor();
 
-	/** Equality operator for ItemSlot */
+	/** ItemSlot 的相等运算符 */
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Equal (RPGItemSlot)", CompactNodeTitle = "==", Keywords = "== equal"), Category = Inventory)
 	static bool EqualEqual_RPGItemSlot(const FRPGItemSlot& A, const FRPGItemSlot& B);
 
-	/** Inequality operator for ItemSlot */
+	/** ItemSlot 的不等运算符 */
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "NotEqualEqual (RPGItemSlot)", CompactNodeTitle = "!=", Keywords = "!= not equal"), Category = Inventory)
 	static bool NotEqual_RPGItemSlot(const FRPGItemSlot& A, const FRPGItemSlot& B);
 
-	/** Validity check for ItemSlot */
+	/** ItemSlot 的有效性检查 */
 	UFUNCTION(BlueprintPure, Category = Inventory)
 	static bool IsValidItemSlot(const FRPGItemSlot& ItemSlot);
 
-	/** Checks if spec has any effects */
+	/** 检查规格是否有任何效果 */
 	UFUNCTION(BlueprintPure, Category = Ability)
 	static bool DoesEffectContainerSpecHaveEffects(const FRPGGameplayEffectContainerSpec& ContainerSpec);
 
-	/** Checks if spec has any targets */
+	/** 检查规格是否有任何目标 */
 	UFUNCTION(BlueprintPure, Category = Ability)
 	static bool DoesEffectContainerSpecHaveTargets(const FRPGGameplayEffectContainerSpec& ContainerSpec);
 
-	/** Adds targets to a copy of the passed in effect container spec and returns it */
+	/** 将目标添加到传入的效果容器规格的副本中并返回它 */
 	UFUNCTION(BlueprintCallable, Category = Ability, meta = (AutoCreateRefTerm = "HitResults,TargetActors"))
 	static FRPGGameplayEffectContainerSpec AddTargetsToEffectContainerSpec(const FRPGGameplayEffectContainerSpec& ContainerSpec, const TArray<FHitResult>& HitResults, const TArray<AActor*>& TargetActors);
 
-	/** Applies container spec that was made from an ability */
+	/** 应用从能力制作的容器规格 */
 	UFUNCTION(BlueprintCallable, Category = Ability)
 	static TArray<FActiveGameplayEffectHandle> ApplyExternalEffectContainerSpec(const FRPGGameplayEffectContainerSpec& ContainerSpec);
 
-	//Returns the project version set in the 'Project Settings' > 'Description' section of the editor
+	//返回编辑器中“项目设置”>“描述”部分中设置的项目版本
 	UFUNCTION(BlueprintPure, Category = "Project")
 	static FString GetProjectVersion();
 };

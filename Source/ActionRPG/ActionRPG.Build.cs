@@ -43,7 +43,7 @@ public class ActionRPG : ModuleRules
 			PrivateDependencyModuleNames.AddRange(new string[] { "OnlineSubsystem", "OnlineSubsystemUtils" });
 			DynamicallyLoadedModuleNames.Add("AndroidAdvertising");
 			DynamicallyLoadedModuleNames.Add("OnlineSubsystemGooglePlay");
-            // Add UPL to add configrules.txt to our APK
+            // 添加 UPL 以将 configrules.txt 添加到我们的 APK 中
             string PluginPath = Utils.MakePathRelativeTo(ModuleDirectory, Target.RelativeEnginePath);
             AdditionalPropertiesForReceipt.Add("AndroidPlugin", System.IO.Path.Combine(PluginPath, "AddRoundIcon_UPL.xml"));
 

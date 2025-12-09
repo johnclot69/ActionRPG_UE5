@@ -7,59 +7,59 @@
 #include "GameFramework/SaveGame.h"
 #include "RPGSaveGame.generated.h"
 
-/** List of versions, native code will handle fixups for any old versions */
+/** 版本列表，原生代码将处理任何旧版本的修复 */
 namespace ERPGSaveGameVersion
 {
 	enum type
 	{
-		// Initial version
+		// 初始版本
 		Initial,
-		// Added Inventory
+		// 添加了库存
 		AddedInventory,
-		// Added ItemData to store count/level
+		// 添加了 ItemData 以存储数量/等级
 		AddedItemData,
 
-		// -----<new versions must be added before this line>-------------------------------------------------
+		// -----<新版本必须在此行之前添加>-------------------------------------------------
 		VersionPlusOne,
 		LatestVersion = VersionPlusOne - 1
 	};
 }
 
-/** Object that is written to and read from the save game archive, with a data version */
+/** 写入和读取保存游戏存档的对象，带有数据版本 */
 UCLASS(BlueprintType)
 class ACTIONRPG_API URPGSaveGame : public USaveGame
 {
 	GENERATED_BODY()
 
 public:
-	/** Constructor */
+	/** 构造函数 */
 	URPGSaveGame()
 	{
-		// Set to current version, this will get overwritten during serialization when loading
+		// 设置为当前版本，这将在加载时的序列化过程中被覆盖
 		SavedDataVersion = ERPGSaveGameVersion::LatestVersion;
 	}
 
-	/** Map of items to item data */
+	/** 物品到物品数据的映射 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = SaveGame)
 	TMap<FPrimaryAssetId, FRPGItemData> InventoryData;
 
-	/** Map of slotted items */
+	/** 槽位物品的映射 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = SaveGame)
 	TMap<FRPGItemSlot, FPrimaryAssetId> SlottedItems;
 
-	/** User's unique id */
+	/** 用户的唯一 ID */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = SaveGame)
 	FString UserId;
 
 protected:
-	/** Deprecated way of storing items, this is read in but not saved out */
+	/** 已弃用的存储物品方式，这会被读入但不会被写出 */
 	UPROPERTY()
 	TArray<FPrimaryAssetId> InventoryItems_DEPRECATED;
 
-	/** What LatestVersion was when the archive was saved */
+	/** 存档保存时的 LatestVersion */
 	UPROPERTY()
 	int32 SavedDataVersion;
 
-	/** Overridden to allow version fixups */
+	/** 重写以允许版本修复 */
 	virtual void Serialize(FArchive& Ar) override;
 };

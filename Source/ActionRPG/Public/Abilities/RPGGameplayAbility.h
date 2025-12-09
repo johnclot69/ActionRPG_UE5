@@ -8,9 +8,9 @@
 #include "RPGGameplayAbility.generated.h"
 
 /**
- * Subclass of ability blueprint type with game-specific data
- * This class uses GameplayEffectContainers to allow easier execution of gameplay effects based on a triggering tag
- * Most games will need to implement a subclass to support their game-specific code
+ * 具有特定游戏数据的能力蓝图类型的子类
+ * 此类使用 GameplayEffectContainers 允许根据触发标签更轻松地执行游戏性效果
+ * 大多数游戏都需要实现一个子类以支持其特定于游戏的代码
  */
 UCLASS()
 class ACTIONRPG_API URPGGameplayAbility : public UGameplayAbility
@@ -18,26 +18,26 @@ class ACTIONRPG_API URPGGameplayAbility : public UGameplayAbility
 	GENERATED_BODY()
 
 public:
-	// Constructor and overrides
+	// 构造函数和重写
 	URPGGameplayAbility();
 
-	/** Map of gameplay tags to gameplay effect containers */
+	/** 游戏性标签到游戏性效果容器的映射 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = GameplayEffects)
 	TMap<FGameplayTag, FRPGGameplayEffectContainer> EffectContainerMap;
 
-	/** Make gameplay effect container spec to be applied later, using the passed in container */
+	/** 制作稍后应用的游戏性效果容器规格，使用传入的容器 */
 	UFUNCTION(BlueprintCallable, Category = Ability, meta=(AutoCreateRefTerm = "EventData"))
 	virtual FRPGGameplayEffectContainerSpec MakeEffectContainerSpecFromContainer(const FRPGGameplayEffectContainer& Container, const FGameplayEventData& EventData, int32 OverrideGameplayLevel = -1);
 
-	/** Search for and make a gameplay effect container spec to be applied later, from the EffectContainerMap */
+	/** 搜索并制作稍后应用的游戏性效果容器规格，从 EffectContainerMap 中搜索 */
 	UFUNCTION(BlueprintCallable, Category = Ability, meta = (AutoCreateRefTerm = "EventData"))
 	virtual FRPGGameplayEffectContainerSpec MakeEffectContainerSpec(FGameplayTag ContainerTag, const FGameplayEventData& EventData, int32 OverrideGameplayLevel = -1);
 
-	/** Applies a gameplay effect container spec that was previously created */
+	/** 应用之前创建的游戏性效果容器规格 */
 	UFUNCTION(BlueprintCallable, Category = Ability)
 	virtual TArray<FActiveGameplayEffectHandle> ApplyEffectContainerSpec(const FRPGGameplayEffectContainerSpec& ContainerSpec);
 
-	/** Applies a gameplay effect container, by creating and then applying the spec */
+	/** 应用游戏性效果容器，通过创建然后应用规格 */
 	UFUNCTION(BlueprintCallable, Category = Ability, meta = (AutoCreateRefTerm = "EventData"))
 	virtual TArray<FActiveGameplayEffectHandle> ApplyEffectContainer(FGameplayTag ContainerTag, const FGameplayEventData& EventData, int32 OverrideGameplayLevel = -1);
 };

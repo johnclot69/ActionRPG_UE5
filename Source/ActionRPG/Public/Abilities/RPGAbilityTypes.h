@@ -3,9 +3,9 @@
 #pragma once
 
 // ----------------------------------------------------------------------------------------------------------------
-// This header is for Ability-specific structures and enums that are shared across a project
-// Every game will probably need a file like this to handle their extensions to the system
-// This file is a good place for subclasses of FGameplayEffectContext and FGameplayAbilityTargetData
+// 此头文件用于在项目中共享的特定于能力的结构和枚举
+// 每个游戏可能都需要这样一个文件来处理其对系统的扩展
+// 此文件是 FGameplayEffectContext 和 FGameplayAbilityTargetData 子类的好去处
 // ----------------------------------------------------------------------------------------------------------------
 
 #include "ActionRPG.h"
@@ -19,8 +19,8 @@ class URPGTargetType;
 
 
 /**
- * Struct defining a list of gameplay effects, a tag, and targeting info
- * These containers are defined statically in blueprints or assets and then turn into Specs at runtime
+ * 定义游戏性效果列表、标签和目标信息的结构体
+ * 这些容器在蓝图或资产中静态定义，然后在运行时转换为 Spec
  */
 USTRUCT(BlueprintType)
 struct FRPGGameplayEffectContainer
@@ -30,16 +30,16 @@ struct FRPGGameplayEffectContainer
 public:
 	FRPGGameplayEffectContainer() {}
 
-	/** Sets the way that targeting happens */
+	/** 设置目标选择的方式 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = GameplayEffectContainer)
 	TSubclassOf<URPGTargetType> TargetType;
 
-	/** List of gameplay effects to apply to the targets */
+	/** 要应用于目标的游戏性效果列表 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = GameplayEffectContainer)
 	TArray<TSubclassOf<UGameplayEffect>> TargetGameplayEffectClasses;
 };
 
-/** A "processed" version of RPGGameplayEffectContainer that can be passed around and eventually applied */
+/** RPGGameplayEffectContainer 的“已处理”版本，可以传递并最终应用 */
 USTRUCT(BlueprintType)
 struct FRPGGameplayEffectContainerSpec
 {
@@ -48,20 +48,20 @@ struct FRPGGameplayEffectContainerSpec
 public:
 	FRPGGameplayEffectContainerSpec() {}
 
-	/** Computed target data */
+	/** 计算出的目标数据 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = GameplayEffectContainer)
 	FGameplayAbilityTargetDataHandle TargetData;
 
-	/** List of gameplay effects to apply to the targets */
+	/** 要应用于目标的游戏性效果列表 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = GameplayEffectContainer)
 	TArray<FGameplayEffectSpecHandle> TargetGameplayEffectSpecs;
 
-	/** Returns true if this has any valid effect specs */
+	/** 如果具有任何有效的效果规格，则返回 true */
 	bool HasValidEffects() const;
 
-	/** Returns true if this has any valid targets */
+	/** 如果具有任何有效的目标，则返回 true */
 	bool HasValidTargets() const;
 
-	/** Adds new targets to target data */
+	/** 将新目标添加到目标数据 */
 	void AddTargets(const TArray<FHitResult>& HitResults, const TArray<AActor*>& TargetActors);
 };

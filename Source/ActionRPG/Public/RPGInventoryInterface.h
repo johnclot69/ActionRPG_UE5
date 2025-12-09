@@ -6,9 +6,9 @@
 #include "RPGInventoryInterface.generated.h"
 
 /**
- * Interface for actors that provide a set of RPGItems bound to ItemSlots
- * This exists so RPGCharacterBase can query inventory without doing hacky player controller casts
- * It is designed only for use by native classes
+ * 为绑定到 ItemSlots 提供一组 RPGItems 的 Actor 的接口
+ * 这样做是为了让 RPGCharacterBase 可以在不进行 hacky 的玩家控制器转换的情况下查询库存
+ * 它仅设计用于原生类使用
  */
 UINTERFACE(MinimalAPI, meta = (CannotImplementInterfaceInBlueprint))
 class URPGInventoryInterface : public UInterface
@@ -21,19 +21,19 @@ class ACTIONRPG_API IRPGInventoryInterface
 	GENERATED_BODY()
 
 public:
-	/** Returns the map of items to data */
+	/** 返回物品到数据的映射 */
 	virtual const TMap<URPGItem*, FRPGItemData>& GetInventoryDataMap() const = 0;
 
-	/** Returns the map of slots to items */
+	/** 返回槽位到物品的映射 */
 	virtual const TMap<FRPGItemSlot, URPGItem*>& GetSlottedItemMap() const = 0;
 
-	/** Gets the delegate for inventory item changes */
+	/** 获取库存物品更改的委托 */
 	virtual FOnInventoryItemChangedNative& GetInventoryItemChangedDelegate() = 0;
 
-	/** Gets the delegate for inventory slot changes */
+	/** 获取库存槽位更改的委托 */
 	virtual FOnSlottedItemChangedNative& GetSlottedItemChangedDelegate() = 0;
 
-	/** Gets the delegate for when the inventory loads */
+	/** 获取库存加载时的委托 */
 	virtual FOnInventoryLoadedNative& GetInventoryLoadedDelegate() = 0;
 };
 

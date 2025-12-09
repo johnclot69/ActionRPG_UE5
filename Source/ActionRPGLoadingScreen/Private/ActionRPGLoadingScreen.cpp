@@ -8,7 +8,7 @@
 
 
 
-// This module must be loaded "PreLoadingScreen" in the .uproject file, otherwise it will not hook in time!
+// 此模块必须在 .uproject 文件中“PreLoadingScreen”加载，否则无法及时挂接！
 struct FRPGLoadingScreenBrush : public FSlateDynamicImageBrush//, public FGCObject
 {
 	FRPGLoadingScreenBrush(const FName InTextureName, const FVector2D& InImageSize)
@@ -34,7 +34,7 @@ public:
 
 	void Construct(const FArguments& InArgs)
 	{
-		// Load version of the logo with text baked in, path is hardcoded because this loads very early in startup
+		// 加载带有文本的 Logo 版本，路径是硬编码的，因为这在启动的非常早期加载
 		static const FName LoadingScreenName(TEXT("/Game/UI/T_ActionRPG_TransparentLogo.T_ActionRPG_TransparentLogo"));
 
 		LoadingScreenBrush = MakeShareable(new FRPGLoadingScreenBrush(LoadingScreenName, FVector2D(1024, 256)));
@@ -77,14 +77,14 @@ public:
 	}
 
 private:
-	/** Rather to show the ... indicator */
+	/** 是否显示 ... 指示器 */
 	EVisibility GetLoadIndicatorVisibility() const
 	{
 		bool Vis =  GetMoviePlayer()->IsLoadingFinished();
 		return GetMoviePlayer()->IsLoadingFinished() ? EVisibility::Collapsed : EVisibility::Visible;
 	}
 	
-	/** Loading screen image brush */
+	/** 加载屏幕图像画笔 */
 	TSharedPtr<FSlateDynamicImageBrush> LoadingScreenBrush;
 };
 
@@ -93,7 +93,7 @@ class FActionRPGLoadingScreenModule : public IActionRPGLoadingScreenModule
 public:
 	virtual void StartupModule() override
 	{
-		// Force load for cooker reference
+		// 强制加载 Cooker 引用
 		LoadObject<UObject>(nullptr, TEXT("/Game/UI/T_ActionRPG_TransparentLogo.T_ActionRPG_TransparentLogo") );
 
 		if (IsMoviePlayerEnabled())

@@ -5,14 +5,14 @@
 #include "Items/RPGItem.h"
 #include "RPGSkillItem.generated.h"
 
-/** Native base class for skills, should be blueprinted */
+/** 技能的原生基类，应进行蓝图化 */
 UCLASS()
 class ACTIONRPG_API URPGSkillItem : public URPGItem
 {
 	GENERATED_BODY()
 
 public:
-	/** Constructor */
+	/** 构造函数 */
 	URPGSkillItem()
 	{
 		ItemType = URPGAssetManager::SkillItemType;

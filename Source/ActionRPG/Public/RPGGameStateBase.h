@@ -6,14 +6,14 @@
 #include "GameFramework/GameStateBase.h"
 #include "RPGGameStateBase.generated.h"
 
-/** Base class for GameMode, should be blueprinted */
+/** GameState 基类，应进行蓝图化 */
 UCLASS()
 class ACTIONRPG_API ARPGGameStateBase : public AGameStateBase
 {
 	GENERATED_BODY()
 
 public:
-	/** Constructor */
+	/** 构造函数 */
 	ARPGGameStateBase() {}
 };
 

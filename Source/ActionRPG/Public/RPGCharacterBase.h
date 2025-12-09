@@ -15,188 +15,188 @@
 class URPGGameplayAbility;
 class UGameplayEffect;
 
-/** Base class for Character, Designed to be blueprinted */
+/** 角色基类，设计用于蓝图化 */
 UCLASS()
 class ACTIONRPG_API ARPGCharacterBase : public ACharacter, public IAbilitySystemInterface, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
 public:
-	// Constructor and overrides
+	// 构造函数和重写
 	ARPGCharacterBase();
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void UnPossessed() override;
 	virtual void OnRep_Controller() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	// Implement IAbilitySystemInterface
+	// 实现 IAbilitySystemInterface
 	UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
-	/** Returns current health, will be 0 if dead */
+	/** 返回当前生命值，如果死亡则为 0 */
 	UFUNCTION(BlueprintCallable)
 	virtual float GetHealth() const;
 
-	/** Returns maximum health, health will never be greater than this */
+	/** 返回最大生命值，生命值永远不会超过此值 */
 	UFUNCTION(BlueprintCallable)
 	virtual float GetMaxHealth() const;
 
-	/** Returns current mana */
+	/** 返回当前法力值 */
 	UFUNCTION(BlueprintCallable)
 	virtual float GetMana() const;
 
-	/** Returns maximum mana, mana will never be greater than this */
+	/** 返回最大法力值，法力值永远不会超过此值 */
 	UFUNCTION(BlueprintCallable)
 	virtual float GetMaxMana() const;
 
-	/** Returns current movement speed */
+	/** 返回当前移动速度 */
 	UFUNCTION(BlueprintCallable)
 	virtual float GetMoveSpeed() const;
 
-	/** Returns the character level that is passed to the ability system */
+	/** 返回传递给能力系统的角色等级  */
 	UFUNCTION(BlueprintCallable)
 	virtual int32 GetCharacterLevel() const;
 
-	/** Modifies the character level, this may change abilities. Returns true on success */
+	/** 修改角色等级，这可能会改变能力。成功返回 true */
 	UFUNCTION(BlueprintCallable)
 	virtual bool SetCharacterLevel(int32 NewLevel);
 
 	/**
-	 * Attempts to activate any ability in the specified item slot. Will return false if no activatable ability found or activation fails
-	 * Returns true if it thinks it activated, but it may return false positives due to failure later in activation.
-	 * If bAllowRemoteActivation is true, it will remotely activate local/server abilities, if false it will only try to locally activate the ability
+	 * 尝试激活指定物品槽中的任何能力。如果未找到可激活的能力或激活失败，将返回 false
+	 * 如果它认为已激活则返回 true，但也可能因为后续激活失败而出现误报。
+	 * 如果 bAllowRemoteActivation 为 true，它将远程激活本地/服务器能力，如果为 false，它将仅尝试在本地激活能力
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Abilities")
 	bool ActivateAbilitiesWithItemSlot(FRPGItemSlot ItemSlot, bool bAllowRemoteActivation = true);
 
-	/** Returns a list of active abilities bound to the item slot. This only returns if the ability is currently running */
+	/** 返回绑定到物品槽的活动能力列表。仅在能力当前正在运行时才返回 */
 	UFUNCTION(BlueprintCallable, Category = "Abilities")
 	void GetActiveAbilitiesWithItemSlot(FRPGItemSlot ItemSlot, TArray<URPGGameplayAbility*>& ActiveAbilities);
 
 	/**
-	 * Attempts to activate all abilities that match the specified tags
-	 * Returns true if it thinks it activated, but it may return false positives due to failure later in activation.
-	 * If bAllowRemoteActivation is true, it will remotely activate local/server abilities, if false it will only try to locally activate the ability
+	 * 尝试激活所有与指定标签匹配的能力
+	 * 如果它认为已激活则返回 true，但也可能因为后续激活失败而出现误报。
+	 * 如果 bAllowRemoteActivation 为 true，它将远程激活本地/服务器能力，如果为 false，它将仅尝试在本地激活能力
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Abilities")
 	bool ActivateAbilitiesWithTags(FGameplayTagContainer AbilityTags, bool bAllowRemoteActivation = true);
 
-	/** Returns a list of active abilities matching the specified tags. This only returns if the ability is currently running */
+	/** 返回与指定标签匹配的活动能力列表。仅在能力当前正在运行时才返回 */
 	UFUNCTION(BlueprintCallable, Category = "Abilities")
 	void GetActiveAbilitiesWithTags(FGameplayTagContainer AbilityTags, TArray<URPGGameplayAbility*>& ActiveAbilities);
 
-	/** Returns total time and remaining time for cooldown tags. Returns false if no active cooldowns found */
+	/** 返回冷却标签的总时间和剩余时间。如果未找到活动冷却，则返回 false */
 	UFUNCTION(BlueprintCallable, Category = "Abilities")
 	bool GetCooldownRemainingForTag(FGameplayTagContainer CooldownTags, float& TimeRemaining, float& CooldownDuration);
 
 protected:
-	/** The level of this character, should not be modified directly once it has already spawned */
+	/** 此角色的等级，一旦生成后不应直接修改 */
 	UPROPERTY(EditAnywhere, Replicated, Category = Abilities)
 	int32 CharacterLevel;
 
-	/** Abilities to grant to this character on creation. These will be activated by tag or event and are not bound to specific inputs */
+	/** 创建时授予此角色的能力。这些将通过标签或事件激活，并不绑定到特定输入 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Abilities)
 	TArray<TSubclassOf<URPGGameplayAbility>> GameplayAbilities;
 
-	/** Map of item slot to gameplay ability class, these are bound before any abilities added by the inventory */
+	/** 物品槽到游戏性能力类的映射，这些在库存添加任何能力之前绑定 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Abilities)
 	TMap<FRPGItemSlot, TSubclassOf<URPGGameplayAbility>> DefaultSlottedAbilities;
 
-	/** Passive gameplay effects applied on creation */
+	/** 创建时应用的被动游戏性效果 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Abilities)
 	TArray<TSubclassOf<UGameplayEffect>> PassiveGameplayEffects;
 
-	/** The component used to handle ability system interactions */
+	/** 用于处理能力系统交互的组件 */
 	UPROPERTY()
 	URPGAbilitySystemComponent* AbilitySystemComponent;
 
-	/** List of attributes modified by the ability system */
+	/** 由能力系统修改的属性列表 */
 	UPROPERTY()
 	URPGAttributeSet* AttributeSet;
 
-	/** Cached pointer to the inventory source for this character, can be null */
+	/** 此角色的库存源的缓存指针，可以为空 */
 	UPROPERTY()
 	TScriptInterface<IRPGInventoryInterface> InventorySource;
 
-	/** If true we have initialized our abilities */
+	/** 如果为 true，表示我们已初始化能力 */
 	UPROPERTY()
 	int32 bAbilitiesInitialized;
 
-	/** Map of slot to ability granted by that slot. I may refactor this later */
+	/** 槽位到该槽位授予的能力的映射。我稍后可能会重构这个 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Inventory)
 	TMap<FRPGItemSlot, FGameplayAbilitySpecHandle> SlottedAbilities;
 
-	/** Delegate handles */
+	/** 委托句柄 */
 	FDelegateHandle InventoryUpdateHandle;
 	FDelegateHandle InventoryLoadedHandle;
 
 	/**
-	 * Called when character takes damage, which may have killed them
+	 * 当角色受到伤害时调用，这可能已经将其杀死
 	 *
-	 * @param DamageAmount Amount of damage that was done, not clamped based on current health
-	 * @param HitInfo The hit info that generated this damage
-	 * @param DamageTags The gameplay tags of the event that did the damage
-	 * @param InstigatorCharacter The character that initiated this damage
-	 * @param DamageCauser The actual actor that did the damage, might be a weapon or projectile
+	 * @param DamageAmount 造成的伤害量，未基于当前生命值进行钳制
+	 * @param HitInfo 产生此伤害的命中信息
+	 * @param DamageTags 造成伤害的事件的游戏性标签
+	 * @param InstigatorCharacter 发起此伤害的角色
+	 * @param DamageCauser 实际造成伤害的 Actor，可能是武器或射弹
 	 */
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnDamaged(float DamageAmount, const FHitResult& HitInfo, const struct FGameplayTagContainer& DamageTags, ARPGCharacterBase* InstigatorCharacter, AActor* DamageCauser);
 
 	/**
-	 * Called when health is changed, either from healing or from being damaged
-	 * For damage this is called in addition to OnDamaged/OnKilled
+	 * 当生命值改变时调用，无论是来自治疗还是受到伤害
+	 * 对于伤害，这是在 OnDamaged/OnKilled 之外调用的
 	 *
-	 * @param DeltaValue Change in health value, positive for heal, negative for cost. If 0 the delta is unknown
-	 * @param EventTags The gameplay tags of the event that changed mana
+	 * @param DeltaValue 生命值的变化值，正值为治疗，负值为消耗。如果为 0，则变化量未知
+	 * @param EventTags 改变生命值的事件的游戏性标签
 	 */
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 
 	/**
-	 * Called when mana is changed, either from healing or from being used as a cost
+	 * 当法力值改变时调用，无论是来自回复还是作为消耗被使用
 	 *
-	 * @param DeltaValue Change in mana value, positive for heal, negative for cost. If 0 the delta is unknown
-	 * @param EventTags The gameplay tags of the event that changed mana
+	 * @param DeltaValue 法力值的变化值，正值为回复，负值为消耗。如果为 0，则变化量未知
+	 * @param EventTags 改变法力值的事件的游戏性标签
 	 */
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnManaChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 
 	/**
-	 * Called when movement speed is changed
+	 * 当移动速度改变时调用
 	 *
-	 * @param DeltaValue Change in move speed
-	 * @param EventTags The gameplay tags of the event that changed mana
+	 * @param DeltaValue 移动速度的变化值
+	 * @param EventTags 改变移动速度的事件的游戏性标签
 	 */
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnMoveSpeedChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 
-	/** Called when slotted items change, bound to delegate on interface */
+	/** 当槽位物品改变时调用，绑定到接口上的委托 */
 	void OnItemSlotChanged(FRPGItemSlot ItemSlot, URPGItem* Item);
 	void RefreshSlottedGameplayAbilities();
 
-	/** Apply the startup gameplay abilities and effects */
+	/** 应用初始游戏性能力和效果 */
 	void AddStartupGameplayAbilities();
 
-	/** Attempts to remove any startup gameplay abilities */
+	/** 尝试移除任何初始游戏性能力 */
 	void RemoveStartupGameplayAbilities();
 
-	/** Adds slotted item abilities if needed */
+	/** 如果需要，添加槽位物品能力  */
 	void AddSlottedGameplayAbilities();
 
-	/** Fills in with ability specs, based on defaults and inventory */
+	/** 根据默认值和库存填充能力规格 */
 	void FillSlottedAbilitySpecs(TMap<FRPGItemSlot, FGameplayAbilitySpec>& SlottedAbilitySpecs);
 
-	/** Remove slotted gameplay abilities, if force is false it only removes invalid ones */
+	/** 移除槽位游戏性能力，如果 force 为 false，则仅移除无效的能力 */
 	void RemoveSlottedGameplayAbilities(bool bRemoveAll);
 
-	// Called from RPGAttributeSet, these call BP events above
+	// 这些调用来自 RPGAttributeSet，它们会调用上述 BP 事件
 	virtual void HandleDamage(float DamageAmount, const FHitResult& HitInfo, const struct FGameplayTagContainer& DamageTags, ARPGCharacterBase* InstigatorCharacter, AActor* DamageCauser);
 	virtual void HandleHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 	virtual void HandleManaChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 	virtual void HandleMoveSpeedChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 
-	/** Required to support AIPerceptionSystem */
+	/** 持 AIPerceptionSystem 所需 */
 	virtual FGenericTeamId GetGenericTeamId() const override;
 
-	// Friended to allow access to handle functions above
+	// 友元类，以允许访问上面的处理函数
 	friend URPGAttributeSet;
 };

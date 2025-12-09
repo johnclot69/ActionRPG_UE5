@@ -3,9 +3,9 @@
 #pragma once
 
 // ----------------------------------------------------------------------------------------------------------------
-// This header is for enums and structs used by classes and blueprints accross the game
-// Collecting these in a single header helps avoid problems with recursive header includes
-// It's also a good place to put things like data table row structs
+// 此头文件用于整个游戏中的类和蓝图使用的枚举和结构体
+// 将这些收集在单个头文件中通过避免递归头文件包含问题来提供帮助
+// 这也是放置数据表行结构体等内容的好地方
 // ----------------------------------------------------------------------------------------------------------------
 
 #include "UObject/PrimaryAssetId.h"
@@ -14,13 +14,13 @@
 class URPGItem;
 class URPGSaveGame;
 
-/** Struct representing a slot for an item, shown in the UI */
+/** 表示物品槽位的结构体，在 UI 中显示 */
 USTRUCT(BlueprintType)
 struct ACTIONRPG_API FRPGItemSlot
 {
 	GENERATED_BODY()
 
-	/** Constructor, -1 means an invalid slot */
+	/** 构造函数，-1 表示无效槽位 */
 	FRPGItemSlot()
 		: SlotNumber(-1)
 	{}
@@ -30,15 +30,15 @@ struct ACTIONRPG_API FRPGItemSlot
 		, SlotNumber(InSlotNumber)
 	{}
 
-	/** The type of items that can go in this slot */
+	/** 可以放入此槽位的物品类型 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 	FPrimaryAssetType ItemType;
 
-	/** The number of this slot, 0 indexed */
+	/** 此槽位的编号，0 索引 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 	int32 SlotNumber;
 
-	/** Equality operators */
+	/** 相等运算符 */
 	bool operator==(const FRPGItemSlot& Other) const
 	{
 		return ItemType == Other.ItemType && SlotNumber == Other.SlotNumber;
@@ -48,7 +48,7 @@ struct ACTIONRPG_API FRPGItemSlot
 		return !(*this == Other);
 	}
 
-	/** Implemented so it can be used in Maps/Sets */
+	/** 实现以便可以在 Map/Set 中使用  */
 	friend inline uint32 GetTypeHash(const FRPGItemSlot& Key)
 	{
 		uint32 Hash = 0;
@@ -58,7 +58,7 @@ struct ACTIONRPG_API FRPGItemSlot
 		return Hash;
 	}
 
-	/** Returns true if slot is valid */
+	/** 如果槽位有效则返回 true */
 	bool IsValid() const
 	{
 		return ItemType.IsValid() && SlotNumber >= 0;
@@ -66,13 +66,13 @@ struct ACTIONRPG_API FRPGItemSlot
 };
 
 
-/** Extra information about a URPGItem that is in a player's inventory */
+/** 关于玩家库存中 URPGItem 的额外信息 */
 USTRUCT(BlueprintType)
 struct ACTIONRPG_API FRPGItemData
 {
 	GENERATED_BODY()
 
-	/** Constructor, default to count/level 1 so declaring them in blueprints gives you the expected behavior */
+	/** 构造函数，默认为数量/等级 1，以便在蓝图中声明它们能给您预期的行为 */
 	FRPGItemData()
 		: ItemCount(1)
 		, ItemLevel(1)
@@ -83,15 +83,15 @@ struct ACTIONRPG_API FRPGItemData
 		, ItemLevel(InItemLevel)
 	{}
 
-	/** The number of instances of this item in the inventory, can never be below 1 */
+	/** 库存中此物品的实例数，永远不能低于 1 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 	int32 ItemCount;
 
-	/** The level of this item. This level is shared for all instances, can never be below 1 */
+	/** 此物品的等级。此等级由所有实例共享，永远不能低于 1 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 	int32 ItemLevel;
 
-	/** Equality operators */
+	/** 相等运算符 */
 	bool operator==(const FRPGItemData& Other) const
 	{
 		return ItemCount == Other.ItemCount && ItemLevel == Other.ItemLevel;
@@ -101,13 +101,13 @@ struct ACTIONRPG_API FRPGItemData
 		return !(*this == Other);
 	}
 
-	/** Returns true if count is greater than 0 */
+	/** 如果计数大于 0 则返回 true */
 	bool IsValid() const
 	{
 		return ItemCount > 0;
 	}
 
-	/** Append an item data, this adds the count and overrides everything else */
+	/** 追加物品数据，这将添加计数并覆盖其他所有内容 */
 	void UpdateItemData(const FRPGItemData& Other, int32 MaxCount, int32 MaxLevel)
 	{
 		if (MaxCount <= 0)
@@ -125,18 +125,18 @@ struct ACTIONRPG_API FRPGItemData
 	}
 };
 
-/** Delegate called when an inventory item changes */
+/** 当库存物品更改时调用的委托 */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnInventoryItemChanged, bool, bAdded, URPGItem*, Item);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnInventoryItemChangedNative, bool, URPGItem*);
 
-/** Delegate called when the contents of an inventory slot change */
+/** 当库存槽位内容更改时调用的委托 */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSlottedItemChanged, FRPGItemSlot, ItemSlot, URPGItem*, Item);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnSlottedItemChangedNative, FRPGItemSlot, URPGItem*);
 
-/** Delegate called when the entire inventory has been loaded, all items may have been replaced */
+/** 当整个库存已加载时调用的委托，所有物品可能已被替换 */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryLoaded);
 DECLARE_MULTICAST_DELEGATE(FOnInventoryLoadedNative);
 
-/** Delegate called when the save game has been loaded/reset */
+/** 当保存游戏已加载/重置时调用的委托 */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSaveGameLoaded, URPGSaveGame*, SaveGame);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnSaveGameLoadedNative, URPGSaveGame*);

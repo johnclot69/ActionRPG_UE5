@@ -9,9 +9,9 @@
 class URPGItem;
 
 /**
- * Game implementation of asset manager, overrides functionality and stores game-specific types
- * It is expected that most games will want to override AssetManager as it provides a good place for game-specific loading logic
- * This is used by setting AssetManagerClassName in DefaultEngine.ini
+ * 资产管理器的游戏实现，覆盖功能并存储特定于游戏的类型
+ * 预计大多数游戏都会希望覆盖 AssetManager，因为它为特定于游戏的加载逻辑提供了一个好地方
+ * 这是通过在 DefaultEngine.ini 中设置 AssetManagerClassName 来使用的
  */
 UCLASS()
 class ACTIONRPG_API URPGAssetManager : public UAssetManager
@@ -19,25 +19,25 @@ class ACTIONRPG_API URPGAssetManager : public UAssetManager
 	GENERATED_BODY()
 
 public:
-	// Constructor and overrides
+	// 构造函数和重写
 	URPGAssetManager() {}
 	virtual void StartInitialLoading() override;
 
-	/** Static types for items */
+	/** 物品的静态类型 */
 	static const FPrimaryAssetType	PotionItemType;
 	static const FPrimaryAssetType	SkillItemType;
 	static const FPrimaryAssetType	TokenItemType;
 	static const FPrimaryAssetType	WeaponItemType;
 
-	/** Returns the current AssetManager object */
+	/** 返回当前的 AssetManager 对象 */
 	static URPGAssetManager& Get();
 
 	/**
-	 * Synchronously loads an RPGItem subclass, this can hitch but is useful when you cannot wait for an async load
-	 * This does not maintain a reference to the item so it will garbage collect if not loaded some other way
+	 * 同步加载 RPGItem 子类，这可能会造成卡顿，但在您无法等待异步加载时很有用
+	 * 这不会保留对物品的引用，因此如果未以其他方式加载，它将被垃圾回收
 	 *
-	 * @param PrimaryAssetId The asset identifier to load
-	 * @param bDisplayWarning If true, this will log a warning if the item failed to load
+	 * @param PrimaryAssetId 要加载的资产标识符
+	 * @param bDisplayWarning 如果为 true，则在物品加载失败时记录警告
 	 */
 	URPGItem* ForceLoadItem(const FPrimaryAssetId& PrimaryAssetId, bool bLogWarning = true);
 };

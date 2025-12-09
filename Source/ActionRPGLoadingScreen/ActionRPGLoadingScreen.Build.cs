@@ -2,7 +2,7 @@
 
 using UnrealBuildTool;
 
-// This module must be loaded "PreLoadingScreen" in the .uproject file, otherwise it will not hook in time!
+// 此模块必须在 .uproject 文件中“PreLoadingScreen”加载，否则无法及时挂接！
 
 public class ActionRPGLoadingScreen : ModuleRules
 {

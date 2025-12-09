@@ -5,20 +5,20 @@
 #include "Items/RPGItem.h"
 #include "RPGWeaponItem.generated.h"
 
-/** Native base class for weapons, should be blueprinted */
+/** 武器的原生基类，应进行蓝图化 */
 UCLASS()
 class ACTIONRPG_API URPGWeaponItem : public URPGItem
 {
 	GENERATED_BODY()
 
 public:
-	/** Constructor */
+	/** 构造函数 */
 	URPGWeaponItem()
 	{
 		ItemType = URPGAssetManager::WeaponItemType;
 	}
 
-	/** Weapon actor to spawn */
+	/** 要生成的武器 Actor */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon)
 	TSubclassOf<AActor> WeaponActor;
 };

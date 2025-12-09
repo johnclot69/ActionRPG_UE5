@@ -1,13 +1,13 @@
 # ActionRPG UE 5.7
 
-Action RPG sample project upgraded to the latest Unreal Engine, A sample game that shows how to use the Ability System plugin.
+Action RPG 示例项目已升级至最新虚幻引擎，该示例游戏展示了如何使用能力系统插件。
 
 ![image](https://github.com/vahabahmadvand/ActionRPG_UE53/assets/19814209/4e511c0e-f14a-4ad4-b001-95aa56ea2aee)
 
-Inside of the ARPG sample project and accompanying documentation you will find a wide range of topics that any UE4 developer will find useful. Some of the topics that this sample covers are.
+在这个 ARPG 示例项目及其配套文档中，您将找到许多对任何 UE4 开发者都非常有用的主题。本示例涵盖的部分主题如下：
 
-Check out <https://docs.unrealengine.com/4.27/en-US/Resources/SampleGames/ARPG/>
+请访问 <https://docs.unrealengine.com/4.27/en-US/Resources/SampleGames/ARPG/>
 
-- Utilizing C++ and Blueprints together in a UE5 project.
-- Setting up and using certain aspects of UE5's Ability system.
-- Utilizing Enhanced Input System
+- 在 UE5 项目中结合使用 C++ 和蓝图。
+- 设置和使用 UE5 能力系统的特定功能。
+- 使用增强输入系统。

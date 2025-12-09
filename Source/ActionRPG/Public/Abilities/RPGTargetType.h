@@ -12,11 +12,11 @@ class AActor;
 struct FGameplayEventData;
 
 /**
- * Class that is used to determine targeting for abilities
- * It is meant to be blueprinted to run target logic
- * This does not subclass GameplayAbilityTargetActor because this class is never instanced into the world
- * This can be used as a basis for a game-specific targeting blueprint
- * If your targeting is more complicated you may need to instance into the world once or as a pooled actor
+ * 用于确定能力目标的类
+ * 旨在通过蓝图化来运行目标逻辑
+ * 这不是 GameplayAbilityTargetActor 的子类，因为此类从未在世界中实例化
+ * 这可以用作特定于游戏的目标蓝图的基础
+ * 如果您的目标更复杂，您可能需要将其在世界中实例化一次或作为池化的 Actor
  */
 UCLASS(Blueprintable, meta = (ShowWorldContextPin))
 class ACTIONRPG_API URPGTargetType : public UObject
@@ -24,38 +24,38 @@ class ACTIONRPG_API URPGTargetType : public UObject
 	GENERATED_BODY()
 
 public:
-	// Constructor and overrides
+	// 构造函数和重写
 	URPGTargetType() {}
 
-	/** Called to determine targets to apply gameplay effects to */
+	/** 调用以确定要应用游戏性效果的目标 */
 	UFUNCTION(BlueprintNativeEvent)
 	void GetTargets(ARPGCharacterBase* TargetingCharacter, AActor* TargetingActor, FGameplayEventData EventData, TArray<FHitResult>& OutHitResults, TArray<AActor*>& OutActors) const;
 };
 
-/** Trivial target type that uses the owner */
+/** 使用所有者的简单目标类型 */
 UCLASS(NotBlueprintable)
 class ACTIONRPG_API URPGTargetType_UseOwner : public URPGTargetType
 {
 	GENERATED_BODY()
 
 public:
-	// Constructor and overrides
+	// 构造函数和重写
 	URPGTargetType_UseOwner() {}
 
-	/** Uses the passed in event data */
+	/** 使用传入的事件数据 */
 	virtual void GetTargets_Implementation(ARPGCharacterBase* TargetingCharacter, AActor* TargetingActor, FGameplayEventData EventData, TArray<FHitResult>& OutHitResults, TArray<AActor*>& OutActors) const override;
 };
 
-/** Trivial target type that pulls the target out of the event data */
+/** 从事件数据中提取目标的简单目标类型 */
 UCLASS(NotBlueprintable)
 class ACTIONRPG_API URPGTargetType_UseEventData : public URPGTargetType
 {
 	GENERATED_BODY()
 
 public:
-	// Constructor and overrides
+	// 构造函数和重写
 	URPGTargetType_UseEventData() {}
 
-	/** Uses the passed in event data */
+	/** 使用传入的事件数据 */
 	virtual void GetTargets_Implementation(ARPGCharacterBase* TargetingCharacter, AActor* TargetingActor, FGameplayEventData EventData, TArray<FHitResult>& OutHitResults, TArray<AActor*>& OutActors) const override;
 };

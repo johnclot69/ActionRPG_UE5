@@ -6,29 +6,28 @@
 #include "GameFramework/GameModeBase.h"
 #include "RPGGameModeBase.generated.h"
 
-/** Base class for GameMode, should be blueprinted */
+/** GameMode 基类，应进行蓝图化 */
 UCLASS()
 class ACTIONRPG_API ARPGGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 
 public:
-	/** Constructor */
+	/** 构造函数 */
 	ARPGGameModeBase();
 
-	/** Overriding this function is not essential to this sample since this function 
-	 *	is not being called in normal circumstances. Added just to streamline 
-	 *	dev-time activities (like automated testing). The default ResetLevel 
-	 *	implementation doesn't work all that well with how things are set up in 
-	 *	ActionRPG (and that's ok, this is exactly why we override functions!). 
+	/** 
+	 * 重写此函数对于本示例并非必不可少，因为在正常情况下不会调用此函数。
+	 * 添加它只是为了简化开发时的活动（如自动化测试）。
+	 * 默认的 ResetLevel 实现与 ActionRPG 的设置不太兼容
+	 * （这没关系，这正是我们要重写函数的原因！）。
 	 */
 	virtual void ResetLevel() override;
 
-	/** Returns true if GameOver() has been called, false otherwise */
+	/** 如果已调用 GameOver() 则返回 true，否则返回 false */
 	virtual bool HasMatchEnded() const override;
 
-	/** Called when the game is over i.e. the player dies, the time runs out or the 
-	 *	game is finished*/
+	/** 游戏结束时调用，即玩家死亡、时间耗尽或游戏完成 */
 	UFUNCTION(BlueprintCallable, Category=Game)
 	virtual void GameOver();
 

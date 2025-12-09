@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root xmlns:android="http://schemas.android.com/apk/res/android">
-	<!-- init section is always evaluated once per architecture -->
+	<!-- init 部分始终针对每个架构评估一次 -->
 	<init>
 	</init>
 
 	<androidManifestUpdates>
-		<!-- add roundIcon attribute to application -->
+		<!-- 将 roundIcon 属性添加到应用程序 -->
 		<addAttribute tag="application" name="android:roundIcon" value="@drawable/icon_round"/>
 	</androidManifestUpdates>
 </root>

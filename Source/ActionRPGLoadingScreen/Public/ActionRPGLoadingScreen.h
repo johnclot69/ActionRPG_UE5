@@ -5,19 +5,19 @@
 #include "Modules/ModuleInterface.h"
 #include "Modules/ModuleManager.h"
 
-/** Module interface for this game's loading screens */
+/** 此游戏加载屏幕的模块接口 */
 class IActionRPGLoadingScreenModule : public IModuleInterface
 {
 public:
-	/** Loads the module so it can be turned on */
+	/** 加载模块以便可以将其打开 */
 	static inline IActionRPGLoadingScreenModule& Get()
 	{
 		return FModuleManager::LoadModuleChecked<IActionRPGLoadingScreenModule>("ActionRPGLoadingScreen");
 	}
 
-	/** Kicks off the loading screen for in game loading (not startup) */
+	/** 启动游戏内加载屏幕（非启动时） */
 	virtual void StartInGameLoadingScreen(bool bPlayUntilStopped, float PlayTime) = 0;
 
-	/** Stops the loading screen */
+	/** 停止加载屏幕 */
 	virtual void StopInGameLoadingScreen() = 0;
 };

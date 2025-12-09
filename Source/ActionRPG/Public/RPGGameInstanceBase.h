@@ -10,9 +10,9 @@ class URPGItem;
 class URPGSaveGame;
 
 /**
- * Base class for GameInstance, should be blueprinted
- * Most games will need to make a game-specific subclass of GameInstance
- * Once you make a blueprint subclass of your native subclass you will want to set it to be the default in project settings
+ * GameInstance 的基类，应进行蓝图化
+ * 大多数游戏需要创建 GameInstance 的特定游戏子类
+ * 一旦你创建了原生子类的蓝图子类，你会希望在项目设置中将其设置为默认值
  */
 UCLASS()
 class ACTIONRPG_API URPGGameInstanceBase : public UGameInstance
@@ -20,89 +20,89 @@ class ACTIONRPG_API URPGGameInstanceBase : public UGameInstance
 	GENERATED_BODY()
 
 public:
-	// Constructor
+	// 构造函数
 	URPGGameInstanceBase();
 
-	/** List of inventory items to add to new players */
+	/** 添加到新玩家的库存物品列表 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Inventory)
 	TMap<FPrimaryAssetId, FRPGItemData> DefaultInventory;
 
-	/** Number of slots for each type of item */
+	/** 每种类型物品的槽位数 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Inventory)
 	TMap<FPrimaryAssetType, int32> ItemSlotsPerType;
 
-	/** The slot name used for saving */
+	/** 用于保存的槽位名称 */
 	UPROPERTY(BlueprintReadWrite, Category = Save)
 	FString SaveSlot;
 
-	/** The platform-specific user index */
+	/** 特定于平台的用户索引 */
 	UPROPERTY(BlueprintReadWrite, Category = Save)
 	int32 SaveUserIndex;
 
-	/** Delegate called when the save game has been loaded/reset */
+	/** 当保存游戏已加载/重置时调用的委托 */
 	UPROPERTY(BlueprintAssignable, Category = Inventory)
 	FOnSaveGameLoaded OnSaveGameLoaded;
 
-	/** Native delegate for save game load/reset */
+	/** 保存游戏加载/重置的原生委托 */
 	FOnSaveGameLoadedNative OnSaveGameLoadedNative;
 
 	/**
-	 * Adds the default inventory to the inventory array
-	 * @param InventoryArray Inventory to modify
-	 * @param RemoveExtra If true, remove anything other than default inventory
+	 * 将默认库存添加到库存数组
+	 * @param InventoryArray 要修改的库存
+	 * @param RemoveExtra 如果为 true，则移除默认库存以外的任何内容
 	 */
 	UFUNCTION(BlueprintCallable, Category = Inventory)
 	void AddDefaultInventory(URPGSaveGame* SaveGame, bool bRemoveExtra = false);
 
-	/** Returns true if this is a valid inventory slot */
+	/** 如果这是一个有效的物品槽，则返回 true */
 	UFUNCTION(BlueprintCallable, Category = Inventory)
 	bool IsValidItemSlot(FRPGItemSlot ItemSlot) const;
 
-	/** Returns the current save game, so it can be used to initialize state. Changes are not written until WriteSaveGame is called */
+	/** 返回当前保存游戏，以便用于初始化状态。在调用 WriteSaveGame 之前，更改不会被写入 */
 	UFUNCTION(BlueprintCallable, Category = Save)
 	URPGSaveGame* GetCurrentSaveGame();
 
-	/** Sets rather save/load is enabled. If disabled it will always count as a new character */
+	/** 设置是否启用保存/加载。如果禁用，它将始终算作新角色 */
 	UFUNCTION(BlueprintCallable, Category = Save)
 	void SetSavingEnabled(bool bEnabled);
 
-	/** Synchronously loads a save game. If it fails, it will create a new one for you. Returns true if it loaded, false if it created one */
+	/** 同步加载保存游戏。如果失败，它将为您创建一个新的。如果已加载则返回 true，如果创建了一个新游戏则返回 false */
 	UFUNCTION(BlueprintCallable, Category = Save)
 	bool LoadOrCreateSaveGame();
 
-	/** Handle the final setup required after loading a USaveGame object using AsyncLoadGameFromSlot. Returns true if it loaded, false if it created one */
+	/** 处理使用 AsyncLoadGameFromSlot 加载 USaveGame 对象后所需的最终设置。如果已加载则返回 true，如果创建了一个新游戏则返回 false */
 	UFUNCTION(BlueprintCallable, Category = Save)
 	bool HandleSaveGameLoaded(USaveGame* SaveGameObject);
 
-	/** Gets the save game slot and user index used for inventory saving, ready to pass to GameplayStatics save functions */
+	/** 获取用于库存保存的保存游戏槽位和用户索引，准备传递给 GameplayStatics 保存函数 */
 	UFUNCTION(BlueprintCallable, Category = Save)
 	void GetSaveSlotInfo(FString& SlotName, int32& UserIndex) const;
 
-	/** Writes the current save game object to disk. The save to disk happens in a background thread*/
+	/** 将当前保存游戏对象写入磁盘。写入磁盘发生在后台线程中 */
 	UFUNCTION(BlueprintCallable, Category = Save)
 	bool WriteSaveGame();
 
-	/** Resets the current save game to it's default. This will erase player data! This won't save to disk until the next WriteSaveGame */
+	/** 将当前保存游戏重置为默认值。这将擦除玩家数据！直到下一次 WriteSaveGame 之前，这不会保存到磁盘 */
 	UFUNCTION(BlueprintCallable, Category = Save)
 	void ResetSaveGame();
 
 protected:
-	/** The current save game object */
+	/** 当前保存游戏对象 */
 	UPROPERTY()
 	URPGSaveGame* CurrentSaveGame;
 
-	/** Rather it will attempt to actually save to disk */
+	/** 是否尝试实际保存到磁盘 */
 	UPROPERTY()
 	bool bSavingEnabled;
 
-	/** True if we are in the middle of doing a save */
+	/** 如果我们正在保存中，则为 true */
 	UPROPERTY()
 	bool bCurrentlySaving;
 
-	/** True if another save was requested during a save */
+	/** 如果在保存期间请求了另一个保存，则为 true */
 	UPROPERTY()
 	bool bPendingSaveRequested;
 
-	/** Called when the async save happens */
+	/** 当异步保存发生时调用 */
 	virtual void HandleAsyncSave(const FString& SlotName, const int32 UserIndex, bool bSuccess);
 };

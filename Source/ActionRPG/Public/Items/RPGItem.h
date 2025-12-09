@@ -10,14 +10,14 @@
 
 class URPGGameplayAbility;
 
-/** Base class for all items, do not blueprint directly */
+/** 所有物品的基类，请勿直接进行蓝图化 */
 UCLASS(Abstract, BlueprintType)
 class ACTIONRPG_API URPGItem : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
 
 public:
-	/** Constructor */
+	/** 构造函数 */
 	URPGItem()
 		: Price(0)
 		, MaxCount(1)
@@ -25,51 +25,51 @@ public:
 		, AbilityLevel(1)
 	{}
 
-	/** Type of this item, set in native parent class */
+	/** 此物品的类型，在原生父类中设置 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Item)
 	FPrimaryAssetType ItemType;
 
-	/** User-visible short name */
+	/** 用户可见的短名称 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Item)
 	FText ItemName;
 
-	/** User-visible long description */
+	/** 用户可见的长描述 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Item)
 	FText ItemDescription;
 
-	/** Icon to display */
+	/** 要显示的图标 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Item)
 	FSlateBrush ItemIcon;
 
-	/** Price in game */
+	/** 游戏中的价格 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Item)
 	int32 Price;
 
-	/** Maximum number of instances that can be in inventory at once, <= 0 means infinite */
+	/** 库存中一次可拥有的最大实例数，<= 0 表示无限 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Max)
 	int32 MaxCount;
 
-	/** Returns if the item is consumable (MaxCount <= 0)*/
+	/** 返回物品是否为消耗品（MaxCount <= 0） */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Max)
 	bool IsConsumable() const;
 
-	/** Maximum level this item can be, <= 0 means infinite */
+	/** 此物品的最大等级，<= 0 表示无限 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Max)
 	int32 MaxLevel;
 
-	/** Ability to grant if this item is slotted */
+	/** 如果此物品在槽位中，则授予的能力 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Abilities)
 	TSubclassOf<URPGGameplayAbility> GrantedAbility;
 
-	/** Ability level this item grants. <= 0 means the character level */
+	/** 此物品授予的能力等级。<= 0 表示角色等级 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Abilities)
 	int32 AbilityLevel;
 
-	/** Returns the logical name, equivalent to the primary asset id */
+	/** 返回逻辑名称，等同于主要资产 ID */
 	UFUNCTION(BlueprintCallable, Category = Item)
 	FString GetIdentifierString() const;
 
-	/** Overridden to use saved type */
+	/** 重写以使用保存的类型 */
 	virtual FPrimaryAssetId GetPrimaryAssetId() const override;
 };
 
