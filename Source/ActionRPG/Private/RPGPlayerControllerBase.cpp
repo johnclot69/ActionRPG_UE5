@@ -21,17 +21,17 @@ bool ARPGPlayerControllerBase::AddInventoryItem(URPGItem* NewItem, int32 ItemCou
 		return false;
 	}
 
-	// Find current item data, which may be empty
+	// 查找当前物品数据（可能为空）
 	FRPGItemData OldData;
 	GetInventoryItemData(NewItem, OldData);
 
-	// Find modified data
+	// 查找修改后的数据
 	FRPGItemData NewData = OldData;
 	NewData.UpdateItemData(FRPGItemData(ItemCount, ItemLevel), NewItem->MaxCount, NewItem->MaxLevel);
 
 	if (OldData != NewData)
 	{
-		// If data changed, need to update storage and call callback
+		// 如果数据有变化，需要更新存储并触发回调
 		InventoryData.Add(NewItem, NewData);
 		NotifyInventoryItemChanged(true, NewItem);
 		bChanged = true;
@@ -39,13 +39,13 @@ bool ARPGPlayerControllerBase::AddInventoryItem(URPGItem* NewItem, int32 ItemCou
 
 	if (bAutoSlot)
 	{
-		// Slot item if required
+		// 如有需要，将物品自动放入槽位
 		bChanged |= FillEmptySlotWithItem(NewItem);
 	}
 
 	if (bChanged)
 	{
-		// If anything changed, write to save game
+		// 如果发生了任何变化，写入存档
 		SaveInventory();
 		return true;
 	}
@@ -60,17 +60,17 @@ bool ARPGPlayerControllerBase::RemoveInventoryItem(URPGItem* RemovedItem, int32 
 		return false;
 	}
 
-	// Find current item data, which may be empty
+	// 查找当前物品数据（可能为空）
 	FRPGItemData NewData;
 	GetInventoryItemData(RemovedItem, NewData);
 
 	if (!NewData.IsValid())
 	{
-		// Wasn't found
+		// 未找到该物品
 		return false;
 	}
 
-	// If RemoveCount <= 0, delete all
+	// 如果 RemoveCount <= 0，则删除全部数量
 	if (RemoveCount <= 0)
 	{
 		NewData.ItemCount = 0;
@@ -82,12 +82,12 @@ bool ARPGPlayerControllerBase::RemoveInventoryItem(URPGItem* RemovedItem, int32 
 
 	if (NewData.ItemCount > 0)
 	{
-		// Update data with new count
+		// 使用新的数量更新数据
 		InventoryData.Add(RemovedItem, NewData);
 	}
 	else
 	{
-		// Remove item entirely, make sure it is unslotted
+		// 彻底移除物品，并确保它不再占用任何槽位
 		InventoryData.Remove(RemovedItem);
 
 		for (TPair<FRPGItemSlot, URPGItem*>& Pair : SlottedItems)
@@ -100,7 +100,7 @@ bool ARPGPlayerControllerBase::RemoveInventoryItem(URPGItem* RemovedItem, int32 
 		}
 	}
 
-	// If we got this far, there is a change so notify and save
+	// 执行到这里说明发生了变化，因此通知并保存
 	NotifyInventoryItemChanged(false, RemovedItem);
 
 	SaveInventory();
@@ -115,7 +115,7 @@ void ARPGPlayerControllerBase::GetInventoryItems(TArray<URPGItem*>& Items, FPrim
 		{
 			FPrimaryAssetId AssetId = Pair.Key->GetPrimaryAssetId();
 
-			// Filters based on item type
+			// 根据物品类型进行过滤
 			if (AssetId.PrimaryAssetType == ItemType || !ItemType.IsValid())
 			{
 				Items.Add(Pair.Key);
@@ -126,20 +126,20 @@ void ARPGPlayerControllerBase::GetInventoryItems(TArray<URPGItem*>& Items, FPrim
 
 bool ARPGPlayerControllerBase::SetSlottedItem(FRPGItemSlot ItemSlot, URPGItem* Item)
 {
-	// Iterate entire inventory because we need to remove from old slot
+	// 遍历整个已装备/槽位表，因为需要从旧槽位中移除
 	bool bFound = false;
 	for (TPair<FRPGItemSlot, URPGItem*>& Pair : SlottedItems)
 	{
 		if (Pair.Key == ItemSlot)
 		{
-			// Add to new slot
+			// 放入新槽位
 			bFound = true;
 			Pair.Value = Item;
 			NotifySlottedItemChanged(Pair.Key, Pair.Value);
 		}
 		else if (Item != nullptr && Pair.Value == Item)
 		{
-			// If this item was found in another slot, remove it
+			// 如果该物品在其他槽位中已存在，则将其移除
 			Pair.Value = nullptr;
 			NotifySlottedItemChanged(Pair.Key, Pair.Value);
 		}
@@ -227,7 +227,7 @@ bool ARPGPlayerControllerBase::SaveInventory()
 	URPGSaveGame* CurrentSaveGame = GameInstance->GetCurrentSaveGame();
 	if (CurrentSaveGame)
 	{
-		// Reset cached data in save game before writing to it
+		// 写入前先重置存档中缓存的数据
 		CurrentSaveGame->InventoryData.Reset();
 		CurrentSaveGame->SlottedItems.Reset();
 
@@ -253,7 +253,7 @@ bool ARPGPlayerControllerBase::SaveInventory()
 			CurrentSaveGame->SlottedItems.Add(SlotPair.Key, AssetId);
 		}
 
-		// Now that cache is updated, write to disk
+		// 缓存更新完成后，写入磁盘
 		GameInstance->WriteSaveGame();
 		return true;
 	}
@@ -265,7 +265,7 @@ bool ARPGPlayerControllerBase::LoadInventory()
 	InventoryData.Reset();
 	SlottedItems.Reset();
 
-	// Fill in slots from game instance
+	// 从 GameInstance 中填充槽位信息
 	UWorld* World = GetWorld();
 	URPGGameInstanceBase* GameInstance = World ? World->GetGameInstance<URPGGameInstanceBase>() : nullptr;
 
@@ -274,7 +274,7 @@ bool ARPGPlayerControllerBase::LoadInventory()
 		return false;
 	}
 
-	// Bind to loaded callback if not already bound
+	// 如尚未绑定，则绑定“加载完成”的回调
 	if (!GameInstance->OnSaveGameLoadedNative.IsBoundToObject(this))
 	{
 		GameInstance->OnSaveGameLoadedNative.AddUObject(this, &ARPGPlayerControllerBase::HandleSaveGameLoaded);
@@ -292,7 +292,7 @@ bool ARPGPlayerControllerBase::LoadInventory()
 	URPGAssetManager& AssetManager = URPGAssetManager::Get();
 	if (CurrentSaveGame)
 	{
-		// Copy from save game into controller data
+		// 从存档复制到 Controller 数据中
 		bool bFoundAnySlots = false;
 		for (const TPair<FPrimaryAssetId, FRPGItemData>& ItemPair : CurrentSaveGame->InventoryData)
 		{
@@ -319,7 +319,7 @@ bool ARPGPlayerControllerBase::LoadInventory()
 
 		if (!bFoundAnySlots)
 		{
-			// Auto slot items as no slots were saved
+			// 未保存任何槽位信息时，自动将物品放入槽位
 			FillEmptySlots();
 		}
 
@@ -328,7 +328,7 @@ bool ARPGPlayerControllerBase::LoadInventory()
 		return true;
 	}
 
-	// Load failed but we reset inventory, so need to notify UI
+	// 加载失败，但我们已重置背包，因此需要通知 UI
 	NotifyInventoryLoaded();
 
 	return false;
@@ -336,7 +336,7 @@ bool ARPGPlayerControllerBase::LoadInventory()
 
 bool ARPGPlayerControllerBase::FillEmptySlotWithItem(URPGItem* NewItem)
 {
-	// Look for an empty item slot to fill with this item
+	// 查找一个空的物品槽位来放入该物品
 	FPrimaryAssetType NewItemType = NewItem->GetPrimaryAssetId().PrimaryAssetType;
 	FRPGItemSlot EmptySlot;
 	for (TPair<FRPGItemSlot, URPGItem*>& Pair : SlottedItems)
@@ -345,12 +345,12 @@ bool ARPGPlayerControllerBase::FillEmptySlotWithItem(URPGItem* NewItem)
 		{
 			if (Pair.Value == NewItem)
 			{
-				// Item is already slotted
+				// 该物品已经在槽位中
 				return false;
 			}
 			else if (Pair.Value == nullptr && (!EmptySlot.IsValid() || EmptySlot.SlotNumber > Pair.Key.SlotNumber))
 			{
-				// We found an empty slot worth filling
+				// 找到一个值得填充的空槽位
 				EmptySlot = Pair.Key;
 			}
 		}
@@ -368,27 +368,27 @@ bool ARPGPlayerControllerBase::FillEmptySlotWithItem(URPGItem* NewItem)
 
 void ARPGPlayerControllerBase::NotifyInventoryItemChanged(bool bAdded, URPGItem* Item)
 {
-	// Notify native before blueprint
+	// 先通知原生回调，再通知蓝图
 	OnInventoryItemChangedNative.Broadcast(bAdded, Item);
 	OnInventoryItemChanged.Broadcast(bAdded, Item);
 
-	// Call BP update event
+	// 调用 BP 更新事件
 	InventoryItemChanged(bAdded, Item);
 }
 
 void ARPGPlayerControllerBase::NotifySlottedItemChanged(FRPGItemSlot ItemSlot, URPGItem* Item)
 {
-	// Notify native before blueprint
+	// 先通知原生回调，再通知蓝图
 	OnSlottedItemChangedNative.Broadcast(ItemSlot, Item);
 	OnSlottedItemChanged.Broadcast(ItemSlot, Item);
 
-	// Call BP update event
+	// 调用 BP 更新事件
 	SlottedItemChanged(ItemSlot, Item);
 }
 
-void ARPGPlayerControllerBase::NotifyInventoryLoaded()
+void ARPGPlayerControllerBase::NotifyInventoryLoaded() const
 {
-	// Notify native before blueprint
+	// 先通知原生回调，再通知蓝图
 	OnInventoryLoadedNative.Broadcast();
 	OnInventoryLoaded.Broadcast();
 }
@@ -400,7 +400,7 @@ void ARPGPlayerControllerBase::HandleSaveGameLoaded(URPGSaveGame* NewSaveGame)
 
 void ARPGPlayerControllerBase::BeginPlay()
 {
-	// Load inventory off save game before starting play
+	// 开始 Play 之前，先从存档加载背包
 	LoadInventory();
 
 	Super::BeginPlay();

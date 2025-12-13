@@ -128,7 +128,7 @@ protected:
 	/** 调用库存更新回调 */
 	void NotifyInventoryItemChanged(bool bAdded, URPGItem* Item);
 	void NotifySlottedItemChanged(FRPGItemSlot ItemSlot, URPGItem* Item);
-	void NotifyInventoryLoaded();
+	void NotifyInventoryLoaded() const;
 
 	/** 当全局保存游戏加载后调用 */
 	void HandleSaveGameLoaded(URPGSaveGame* NewSaveGame);

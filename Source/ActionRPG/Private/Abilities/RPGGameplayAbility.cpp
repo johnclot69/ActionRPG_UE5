@@ -9,7 +9,7 @@ URPGGameplayAbility::URPGGameplayAbility() {}
 
 FRPGGameplayEffectContainerSpec URPGGameplayAbility::MakeEffectContainerSpecFromContainer(const FRPGGameplayEffectContainer& Container, const FGameplayEventData& EventData, int32 OverrideGameplayLevel)
 {
-	// First figure out our actor info
+	// 首先确定 ActorInfo（拥有者/角色/ASC 等）
 	FRPGGameplayEffectContainerSpec ReturnSpec;
 	AActor* OwningActor = GetOwningActorFromActorInfo();
 	ARPGCharacterBase* OwningCharacter = Cast<ARPGCharacterBase>(OwningActor);
@@ -17,7 +17,7 @@ FRPGGameplayEffectContainerSpec URPGGameplayAbility::MakeEffectContainerSpecFrom
 
 	if (OwningASC)
 	{
-		// If we have a target type, run the targeting logic. This is optional, targets can be added later
+		// 如果设置了目标类型，则执行选目标逻辑（可选；目标也可以稍后再添加）
 		if (Container.TargetType.Get())
 		{
 			TArray<FHitResult> HitResults;
@@ -28,13 +28,13 @@ FRPGGameplayEffectContainerSpec URPGGameplayAbility::MakeEffectContainerSpecFrom
 			ReturnSpec.AddTargets(HitResults, TargetActors);
 		}
 
-		// If we don't have an override level, use the default on the ability itself
+		// 如果没有指定覆盖等级，则使用技能本身的默认等级
 		if (OverrideGameplayLevel == INDEX_NONE)
 		{
 			OverrideGameplayLevel = OverrideGameplayLevel = this->GetAbilityLevel(); //OwningASC->GetDefaultAbilityLevel();
 		}
 
-		// Build GameplayEffectSpecs for each applied effect
+		// 为每个要应用的效果构建 GameplayEffectSpec
 		for (const TSubclassOf<UGameplayEffect>& EffectClass : Container.TargetGameplayEffectClasses)
 		{
 			ReturnSpec.TargetGameplayEffectSpecs.Add(MakeOutgoingGameplayEffectSpec(EffectClass, OverrideGameplayLevel));
@@ -58,7 +58,7 @@ TArray<FActiveGameplayEffectHandle> URPGGameplayAbility::ApplyEffectContainerSpe
 {
 	TArray<FActiveGameplayEffectHandle> AllEffects;
 
-	// Iterate list of effect specs and apply them to their target data
+	// 遍历 EffectSpec 列表并应用到对应的 TargetData 上
 	for (const FGameplayEffectSpecHandle& SpecHandle : ContainerSpec.TargetGameplayEffectSpecs)
 	{
 		AllEffects.Append(K2_ApplyGameplayEffectSpecToTarget(SpecHandle, ContainerSpec.TargetData));

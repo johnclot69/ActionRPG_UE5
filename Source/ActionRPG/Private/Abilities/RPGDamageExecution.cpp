@@ -12,15 +12,15 @@ struct RPGDamageStatics
 
 	RPGDamageStatics()
 	{
-		// Capture the Target's DefensePower attribute. Do not snapshot it, because we want to use the health value at the moment we apply the execution.
+		// 捕获目标（Target）的 DefensePower 属性。不做快照（snapshot），因为我们希望在执行应用的那一刻使用当时的数值。
 		DEFINE_ATTRIBUTE_CAPTUREDEF(URPGAttributeSet, DefensePower, Target, false);
 
-		// Capture the Source's AttackPower. We do want to snapshot this at the moment we create the GameplayEffectSpec that will execute the damage.
-		// (imagine we fire a projectile: we create the GE Spec when the projectile is fired. When it hits the target, we want to use the AttackPower at the moment
-		// the projectile was launched, not when it hits).
+		// 捕获来源（Source）的 AttackPower。这里需要做快照：在创建将要执行伤害的 GameplayEffectSpec 时就固定该数值。
+		// （想象我们发射一颗子弹：在子弹发射时创建 GE Spec。子弹命中目标时，我们希望使用“发射当时”的 AttackPower，
+		// 而不是“命中当时”的 AttackPower。）
 		DEFINE_ATTRIBUTE_CAPTUREDEF(URPGAttributeSet, AttackPower, Source, true);
 
-		// Also capture the source's raw Damage, which is normally passed in directly via the execution
+		// 同时捕获来源的原始 Damage（通常会通过 Execution 直接传入）
 		DEFINE_ATTRIBUTE_CAPTUREDEF(URPGAttributeSet, Damage, Source, true);
 	}
 };
@@ -48,7 +48,7 @@ void URPGDamageExecution::Execute_Implementation(const FGameplayEffectCustomExec
 
 	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
 
-	// Gather the tags from the source and target as that can affect which buffs should be used
+	// 收集来源与目标身上的 Tag，因为它们会影响应当使用哪些 Buff
 	const FGameplayTagContainer* SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();
 	const FGameplayTagContainer* TargetTags = Spec.CapturedTargetTags.GetAggregatedTags();
 
@@ -57,8 +57,8 @@ void URPGDamageExecution::Execute_Implementation(const FGameplayEffectCustomExec
 	EvaluationParameters.TargetTags = TargetTags;
 
 	// --------------------------------------
-	//	Damage Done = Damage * AttackPower / DefensePower
-	//	If DefensePower is 0, it is treated as 1.0
+	//	最终伤害 = Damage * AttackPower / DefensePower
+	//	若 DefensePower 为 0，则按 1.0 处理
 	// --------------------------------------
 
 	float DefensePower = 0.f;

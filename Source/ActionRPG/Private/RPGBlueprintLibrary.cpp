@@ -62,12 +62,12 @@ TArray<FActiveGameplayEffectHandle> URPGBlueprintLibrary::ApplyExternalEffectCon
 {
 	TArray<FActiveGameplayEffectHandle> AllEffects;
 
-	// Iterate list of gameplay effects
+	// 遍历 GameplayEffect 列表
 	for (const FGameplayEffectSpecHandle& SpecHandle : ContainerSpec.TargetGameplayEffectSpecs)
 	{
 		if (SpecHandle.IsValid())
 		{
-			// If effect is valid, iterate list of targets and apply to all
+			// 若效果有效，则遍历目标列表并对所有目标应用该效果
 			for (TSharedPtr<FGameplayAbilityTargetData> Data : ContainerSpec.TargetData.Data)
 			{
 				AllEffects.Append(Data->ApplyGameplayEffectSpec(*SpecHandle.Data.Get()));

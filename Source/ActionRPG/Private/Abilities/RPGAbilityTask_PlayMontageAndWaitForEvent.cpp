@@ -15,12 +15,12 @@ URPGAbilityTask_PlayMontageAndWaitForEvent::URPGAbilityTask_PlayMontageAndWaitFo
 	bStopWhenAbilityEnds = true;
 }
 
-URPGAbilitySystemComponent* URPGAbilityTask_PlayMontageAndWaitForEvent::GetTargetASC()
+URPGAbilitySystemComponent* URPGAbilityTask_PlayMontageAndWaitForEvent::GetTargetASC() const
 {
 	return Cast<URPGAbilitySystemComponent>(AbilitySystemComponent);
 }
 
-void URPGAbilityTask_PlayMontageAndWaitForEvent::OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted)
+void URPGAbilityTask_PlayMontageAndWaitForEvent::OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted) const
 {
 	if (Ability && Ability->GetCurrentMontage() == MontageToPlay)
 	{
@@ -28,7 +28,7 @@ void URPGAbilityTask_PlayMontageAndWaitForEvent::OnMontageBlendingOut(UAnimMonta
 		{
 			AbilitySystemComponent->ClearAnimatingAbility(Ability);
 
-			// Reset AnimRootMotionTranslationScale
+			// 重置 AnimRootMotionTranslationScale
 			ACharacter* Character = Cast<ACharacter>(GetAvatarActor());
 			if (Character && (Character->GetLocalRole() == ROLE_Authority ||
 							  (Character->GetLocalRole() == ROLE_AutonomousProxy && Ability->GetNetExecutionPolicy() == EGameplayAbilityNetExecutionPolicy::LocalPredicted)))
@@ -57,11 +57,11 @@ void URPGAbilityTask_PlayMontageAndWaitForEvent::OnMontageBlendingOut(UAnimMonta
 
 void URPGAbilityTask_PlayMontageAndWaitForEvent::OnAbilityCancelled()
 {
-	// TODO: Merge this fix back to engine, it was calling the wrong callback
+	// TODO：把这个修复合回引擎；之前它调用了错误的回调
 
 	if (StopPlayingMontage())
 	{
-		// Let the BP handle the interrupt as well
+		// 让 BP 同样处理一次中断
 		if (ShouldBroadcastAbilityTaskDelegates())
 		{
 			OnCancelled.Broadcast(FGameplayTag(), FGameplayEventData());
@@ -82,7 +82,7 @@ void URPGAbilityTask_PlayMontageAndWaitForEvent::OnMontageEnded(UAnimMontage* Mo
 	EndTask();
 }
 
-void URPGAbilityTask_PlayMontageAndWaitForEvent::OnGameplayEvent(FGameplayTag EventTag, const FGameplayEventData* Payload)
+void URPGAbilityTask_PlayMontageAndWaitForEvent::OnGameplayEvent(FGameplayTag EventTag, const FGameplayEventData* Payload) const
 {
 	if (ShouldBroadcastAbilityTaskDelegates())
 	{
@@ -125,12 +125,13 @@ void URPGAbilityTask_PlayMontageAndWaitForEvent::Activate()
 		UAnimInstance* AnimInstance = ActorInfo->GetAnimInstance();
 		if (AnimInstance != nullptr)
 		{
-			// Bind to event callback
+			// 绑定事件回调
 			EventHandle = RPGAbilitySystemComponent->AddGameplayEventTagContainerDelegate(EventTags, FGameplayEventTagMulticastDelegate::FDelegate::CreateUObject(this, &URPGAbilityTask_PlayMontageAndWaitForEvent::OnGameplayEvent));
 
 			if (RPGAbilitySystemComponent->PlayMontage(Ability, Ability->GetCurrentActivationInfo(), MontageToPlay, Rate, StartSection) > 0.f)
 			{
-				// Playing a montage could potentially fire off a callback into game code which could kill this ability! Early out if we are  pending kill.
+				// 播放 Montage 可能会回调到游戏代码，从而导致该 Ability 被销毁！
+				// 若我们已经处于 pending kill 状态则尽早返回。
 				if (ShouldBroadcastAbilityTaskDelegates() == false)
 				{
 					return;
@@ -190,10 +191,10 @@ void URPGAbilityTask_PlayMontageAndWaitForEvent::ExternalCancel()
 
 void URPGAbilityTask_PlayMontageAndWaitForEvent::OnDestroy(bool AbilityEnded)
 {
-	// Note: Clearing montage end delegate isn't necessary since its not a multicast and will be cleared when the next montage plays.
-	// (If we are destroyed, it will detect this and not do anything)
+	// 注意：清除 montage end delegate 并非必须，因为它不是 multicast，下一次播放 montage 时会被覆盖清除。
+	//（如果我们已被销毁，它会检测到这一点并且不执行任何操作）
 
-	// This delegate, however, should be cleared as it is a multicast
+	// 但这个 delegate 是 multicast，因此需要显式清除
 	if (Ability)
 	{
 		Ability->OnGameplayAbilityCancelled.Remove(CancelledHandle);
@@ -227,8 +228,8 @@ bool URPGAbilityTask_PlayMontageAndWaitForEvent::StopPlayingMontage()
 		return false;
 	}
 
-	// Check if the montage is still playing
-	// The ability would have been interrupted, in which case we should automatically stop the montage
+	// 检查该 Montage 是否仍在播放
+	// Ability 可能已被打断，这种情况下我们应当自动停止该 Montage
 	UAbilitySystemComponent* ASC = GetTargetASC();
 
 	if (ASC && Ability)
@@ -237,7 +238,7 @@ bool URPGAbilityTask_PlayMontageAndWaitForEvent::StopPlayingMontage()
 		if (AbilitySystemComponent->GetAnimatingAbility() == Ability
 			&& AbilitySystemComponent->GetCurrentMontage() == MontageToPlay)
 		{
-			// Unbind delegates so they don't get called as well
+			// 解绑委托，避免后续仍被回调
 			FAnimMontageInstance* MontageInstance = AnimInstance->GetActiveInstanceForMontage(MontageToPlay);
 			if (MontageInstance)
 			{

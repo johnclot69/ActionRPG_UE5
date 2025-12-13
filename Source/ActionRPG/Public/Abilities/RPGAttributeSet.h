@@ -69,7 +69,7 @@ public:
 
 protected:
 	/** 辅助函数，用于在其关联的最大属性更改时按比例调整属性值。（即，当 MaxHealth 增加时，Health 增加的量保持与以前相同的百分比） */
-	void AdjustAttributeForMaxChange(FGameplayAttributeData& AffectedAttribute, const FGameplayAttributeData& MaxAttribute, float NewMaxValue, const FGameplayAttribute& AffectedAttributeProperty);
+	void AdjustAttributeForMaxChange(const FGameplayAttributeData& AffectedAttribute, const FGameplayAttributeData& MaxAttribute, float NewMaxValue, const FGameplayAttribute& AffectedAttributeProperty) const;
 
 	// 这些 OnRep 函数的存在是为了确保在复制期间能力系统的内部表示正确同步
 	UFUNCTION()

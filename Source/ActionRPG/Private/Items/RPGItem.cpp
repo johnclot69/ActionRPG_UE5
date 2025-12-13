@@ -18,7 +18,7 @@ FString URPGItem::GetIdentifierString() const
 
 FPrimaryAssetId URPGItem::GetPrimaryAssetId() const
 {
-	// This is a DataAsset and not a blueprint so we can just use the raw FName
-	// For blueprints you need to handle stripping the _C suffix
+	// 这是一个 DataAsset 而不是蓝图，因此可以直接使用原始 FName
+	// 对于蓝图，你需要处理去掉末尾的 “_C” 后缀
 	return FPrimaryAssetId(ItemType, GetFName());
 }

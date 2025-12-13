@@ -13,13 +13,13 @@ URPGGameInstanceBase::URPGGameInstanceBase()
 
 void URPGGameInstanceBase::AddDefaultInventory(URPGSaveGame* SaveGame, bool bRemoveExtra)
 {
-	// If we want to remove extra, clear out the existing inventory
+	// 如果需要移除多余物品，则先清空现有背包数据
 	if (bRemoveExtra)
 	{
 		SaveGame->InventoryData.Reset();
 	}
 
-	// Now add the default inventory, this only adds if not already in hte inventory
+	// 然后添加默认背包；仅在背包中尚不存在该物品时才会添加
 	for (const TPair<FPrimaryAssetId, FRPGItemData>& Pair : DefaultInventory)
 	{
 		if (!SaveGame->InventoryData.Contains(Pair.Key))
@@ -71,22 +71,22 @@ bool URPGGameInstanceBase::HandleSaveGameLoaded(USaveGame* SaveGameObject)
 
 	if (!bSavingEnabled)
 	{
-		// If saving is disabled, ignore passed in object
+		// 若禁用存档，则忽略传入的对象
 		SaveGameObject = nullptr;
 	}
 
-	// Replace current save, old object will GC out
+	// 替换当前存档对象；旧对象会被 GC 回收
 	CurrentSaveGame = Cast<URPGSaveGame>(SaveGameObject);
 
 	if (CurrentSaveGame)
 	{
-		// Make sure it has any newly added default inventory
+		// 确保包含任何新增的默认背包物品
 		AddDefaultInventory(CurrentSaveGame, false);
 		bLoaded = true;
 	}
 	else
 	{
-		// This creates it on demand
+		// 按需创建存档对象
 		CurrentSaveGame = Cast<URPGSaveGame>(UGameplayStatics::CreateSaveGameObject(URPGSaveGame::StaticClass()));
 
 		AddDefaultInventory(CurrentSaveGame, true);
@@ -110,16 +110,21 @@ bool URPGGameInstanceBase::WriteSaveGame()
 	{
 		if (bCurrentlySaving)
 		{
-			// Schedule another save to happen after current one finishes. We only queue one save
+			// 当前保存尚未结束：安排在本次结束后再保存一次（最多只排队一次）
 			bPendingSaveRequested = true;
 			return true;
 		}
 
-		// Indicate that we're currently doing an async save
+		// 标记：当前正在执行异步保存
 		bCurrentlySaving = true;
 
-		// This goes off in the background
-		UGameplayStatics::AsyncSaveGameToSlot(GetCurrentSaveGame(), SaveSlot, SaveUserIndex, FAsyncSaveGameToSlotDelegate::CreateUObject(this, &URPGGameInstanceBase::HandleAsyncSave));
+		// 后台执行保存
+		UGameplayStatics::AsyncSaveGameToSlot(
+			GetCurrentSaveGame(),
+			SaveSlot,
+			SaveUserIndex,
+			FAsyncSaveGameToSlotDelegate::CreateUObject(this, &URPGGameInstanceBase::HandleAsyncSave)
+		);
 		return true;
 	}
 	return false;
@@ -127,7 +132,7 @@ bool URPGGameInstanceBase::WriteSaveGame()
 
 void URPGGameInstanceBase::ResetSaveGame()
 {
-	// Call handle function with no loaded save, this will reset the data
+	// 以“未加载到存档”的形式调用处理函数，这会重置数据
 	HandleSaveGameLoaded(nullptr);
 }
 
@@ -138,7 +143,7 @@ void URPGGameInstanceBase::HandleAsyncSave(const FString& SlotName, const int32 
 
 	if (bPendingSaveRequested)
 	{
-		// Start another save as we got a request while saving
+		// 保存过程中又收到保存请求：再启动一次保存
 		bPendingSaveRequested = false;
 		WriteSaveGame();
 	}

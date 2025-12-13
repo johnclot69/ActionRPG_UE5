@@ -32,11 +32,11 @@ void URPGAssetManager::StartInitialLoading()
 }
 
 
-URPGItem* URPGAssetManager::ForceLoadItem(const FPrimaryAssetId& PrimaryAssetId, bool bLogWarning)
+URPGItem* URPGAssetManager::ForceLoadItem(const FPrimaryAssetId& PrimaryAssetId, bool bLogWarning) const
 {	
 	FSoftObjectPath ItemPath = GetPrimaryAssetPath(PrimaryAssetId);
 
-	// This does a synchronous load and may hitch
+	// 这里会进行同步加载，可能导致卡顿
 	URPGItem* LoadedItem = Cast<URPGItem>(ItemPath.TryLoad());
 
 	if (bLogWarning && LoadedItem == nullptr)

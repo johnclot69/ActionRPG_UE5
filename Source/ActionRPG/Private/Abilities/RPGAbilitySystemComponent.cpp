@@ -12,10 +12,10 @@ void URPGAbilitySystemComponent::GetActiveAbilitiesWithTags(const FGameplayTagCo
 	TArray<FGameplayAbilitySpec*> AbilitiesToActivate;
 	GetActivatableGameplayAbilitySpecsByAllMatchingTags(GameplayTagContainer, AbilitiesToActivate, false);
 
-	// Iterate the list of all ability specs
+	// 遍历所有匹配的 AbilitySpec
 	for (FGameplayAbilitySpec* Spec : AbilitiesToActivate)
 	{
-		// Iterate all instances on this ability spec
+		// 遍历该 AbilitySpec 上的所有实例
 		TArray<UGameplayAbility*> AbilityInstances = Spec->GetAbilityInstances();
 
 		for (UGameplayAbility* ActiveAbility : AbilityInstances)

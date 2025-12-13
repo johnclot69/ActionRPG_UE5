@@ -4,6 +4,7 @@
 
 #include "ActionRPG.h"
 #include "Engine/AssetManager.h"
+#include "UObject/PrimaryAssetId.h"
 #include "RPGAssetManager.generated.h"
 
 class URPGItem;
@@ -39,6 +40,6 @@ public:
 	 * @param PrimaryAssetId 要加载的资产标识符
 	 * @param bDisplayWarning 如果为 true，则在物品加载失败时记录警告
 	 */
-	URPGItem* ForceLoadItem(const FPrimaryAssetId& PrimaryAssetId, bool bLogWarning = true);
+	URPGItem* ForceLoadItem(const FPrimaryAssetId& PrimaryAssetId, bool bLogWarning = true) const;
 };
 

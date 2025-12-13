@@ -103,12 +103,12 @@ private:
 	bool StopPlayingMontage();
 
 	/** 返回我们的能力系统组件 */
-	URPGAbilitySystemComponent* GetTargetASC();
+	URPGAbilitySystemComponent* GetTargetASC() const;
 
-	void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
+	void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted) const;
 	void OnAbilityCancelled();
 	void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
-	void OnGameplayEvent(FGameplayTag EventTag, const FGameplayEventData* Payload);
+	void OnGameplayEvent(FGameplayTag EventTag, const FGameplayEventData* Payload) const;
 
 	FOnMontageBlendingOutStarted BlendingOutDelegate;
 	FOnMontageEnded MontageEndedDelegate;

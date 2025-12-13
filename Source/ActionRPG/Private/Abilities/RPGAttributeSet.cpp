@@ -66,13 +66,13 @@ void URPGAttributeSet::OnRep_MoveSpeed(const FGameplayAttributeData& OldValue)
 	GAMEPLAYATTRIBUTE_REPNOTIFY(URPGAttributeSet, MoveSpeed, OldValue);
 }
 
-void URPGAttributeSet::AdjustAttributeForMaxChange(FGameplayAttributeData& AffectedAttribute, const FGameplayAttributeData& MaxAttribute, float NewMaxValue, const FGameplayAttribute& AffectedAttributeProperty)
+void URPGAttributeSet::AdjustAttributeForMaxChange(const FGameplayAttributeData& AffectedAttribute, const FGameplayAttributeData& MaxAttribute, float NewMaxValue, const FGameplayAttribute& AffectedAttributeProperty) const
 {
 	UAbilitySystemComponent* AbilityComp = GetOwningAbilitySystemComponent();
 	const float CurrentMaxValue = MaxAttribute.GetCurrentValue();
 	if (!FMath::IsNearlyEqual(CurrentMaxValue, NewMaxValue) && AbilityComp)
 	{
-		// Change current value to maintain the current Val / Max percent
+		// 修改当前值，以保持“当前值 / 最大值”的百分比不变
 		const float CurrentValue = AffectedAttribute.GetCurrentValue();
 		float NewDelta = (CurrentMaxValue > 0.f) ? (CurrentValue * NewMaxValue / CurrentMaxValue) - CurrentValue : NewMaxValue;
 
@@ -82,7 +82,7 @@ void URPGAttributeSet::AdjustAttributeForMaxChange(FGameplayAttributeData& Affec
 
 void URPGAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
-	// This is called whenever attributes change, so for max health/mana we want to scale the current totals to match
+	// 每当属性发生变化都会调用；对于最大生命/法力，我们希望按比例缩放当前值以匹配新的上限
 	Super::PreAttributeChange(Attribute, NewValue);
 
 	if (Attribute == GetMaxHealthAttribute())
@@ -103,15 +103,15 @@ void URPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbac
 	UAbilitySystemComponent* Source = Context.GetOriginalInstigatorAbilitySystemComponent();
 	const FGameplayTagContainer& SourceTags = *Data.EffectSpec.CapturedSourceTags.GetAggregatedTags();
 
-	// Compute the delta between old and new, if it is available
+	// 如果可用，则计算新旧值之间的差值（Delta）
 	float DeltaValue = 0;
 	if (Data.EvaluatedData.ModifierOp == EGameplayModOp::Type::Additive)
 	{
-		// If this was additive, store the raw delta value to be passed along later
+		// 若为加法修改，则保存原始差值，稍后传递使用
 		DeltaValue = Data.EvaluatedData.Magnitude;
 	}
 
-	// Get the Target actor, which should be our owner
+	// 获取目标 Actor（通常是我们的 Owner）
 	AActor* TargetActor = nullptr;
 	AController* TargetController = nullptr;
 	ARPGCharacterBase* TargetCharacter = nullptr;
@@ -124,7 +124,7 @@ void URPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbac
 
 	if (Data.EvaluatedData.Attribute == GetDamageAttribute())
 	{
-		// Get the Source actor
+		// 获取来源 Actor
 		AActor* SourceActor = nullptr;
 		AController* SourceController = nullptr;
 		ARPGCharacterBase* SourceCharacter = nullptr;
@@ -140,7 +140,7 @@ void URPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbac
 				}
 			}
 
-			// Use the controller to find the source pawn
+			// 使用 Controller 找到来源 Pawn
 			if (SourceController)
 			{
 				SourceCharacter = Cast<ARPGCharacterBase>(SourceController->GetPawn());
@@ -150,60 +150,60 @@ void URPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbac
 				SourceCharacter = Cast<ARPGCharacterBase>(SourceActor);
 			}
 
-			// Set the causer actor based on context if it's set
+			// 如果上下文里设置了 Causer，则按上下文来设置来源 Actor
 			if (Context.GetEffectCauser())
 			{
 				SourceActor = Context.GetEffectCauser();
 			}
 		}
 
-		// Try to extract a hit result
+		// 尝试提取命中结果（HitResult）
 		FHitResult HitResult;
 		if (Context.GetHitResult())
 		{
 			HitResult = *Context.GetHitResult();
 		}
 
-		// Store a local copy of the amount of damage done and clear the damage attribute
+		// 保存本次造成的伤害量的本地副本，并清空 Damage 属性
 		const float LocalDamageDone = GetDamage();
 		SetDamage(0.f);
 
 		if (LocalDamageDone > 0)
 		{
-			// Apply the health change and then clamp it
+			// 应用生命值变化并进行钳制
 			const float OldHealth = GetHealth();
 			SetHealth(FMath::Clamp(OldHealth - LocalDamageDone, 0.0f, GetMaxHealth()));
 
 			if (TargetCharacter)
 			{
-				// This is proper damage
+				// 这是一次有效伤害
 				TargetCharacter->HandleDamage(LocalDamageDone, HitResult, SourceTags, SourceCharacter, SourceActor);
 
-				// Call for all health changes
+				// 通知所有生命值变化
 				TargetCharacter->HandleHealthChanged(-LocalDamageDone, SourceTags);
 			}
 		}
 	}
 	else if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
-		// Handle other health changes such as from healing or direct modifiers
-		// First clamp it
+		// 处理其他生命值变化（例如治疗或直接修改器）
+		// 先进行钳制
 		SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
 
 		if (TargetCharacter)
 		{
-			// Call for all health changes
+			// 通知所有生命值变化
 			TargetCharacter->HandleHealthChanged(DeltaValue, SourceTags);
 		}
 	}
 	else if (Data.EvaluatedData.Attribute == GetManaAttribute())
 	{
-		// Clamp mana
+		// 钳制法力值
 		SetMana(FMath::Clamp(GetMana(), 0.0f, GetMaxMana()));
 
 		if (TargetCharacter)
 		{
-			// Call for all mana changes
+			// 通知所有法力值变化
 			TargetCharacter->HandleManaChanged(DeltaValue, SourceTags);
 		}
 	}
@@ -211,7 +211,7 @@ void URPGAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbac
 	{
 		if (TargetCharacter)
 		{
-			// Call for all movespeed changes
+			// 通知所有移动速度变化
 			TargetCharacter->HandleMoveSpeedChanged(DeltaValue, SourceTags);
 		}
 	}

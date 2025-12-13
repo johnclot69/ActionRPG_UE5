@@ -7,11 +7,11 @@
 
 ARPGCharacterBase::ARPGCharacterBase()
 {
-	// Create ability system component, and set it to be explicitly replicated
+	// 创建技能系统组件，并设置为显式复制
 	AbilitySystemComponent = CreateDefaultSubobject<URPGAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	AbilitySystemComponent->SetIsReplicated(true);
 
-	// Create the attribute set, this replicates by default
+	// 创建属性集（默认会进行复制）
 	AttributeSet = CreateDefaultSubobject<URPGAttributeSet>(TEXT("AttributeSet"));
 
 	CharacterLevel = 1;
@@ -29,13 +29,13 @@ void ARPGCharacterBase::AddStartupGameplayAbilities()
 	
 	if (GetLocalRole() == ROLE_Authority && !bAbilitiesInitialized)
 	{
-		// Grant abilities, but only on the server	
+		// 授予技能（仅在服务器端执行）
 		for (TSubclassOf<URPGGameplayAbility>& StartupAbility : GameplayAbilities)
 		{
 			AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(StartupAbility, GetCharacterLevel(), INDEX_NONE, this));
 		}
 
-		// Now apply passives
+		// 现在应用被动效果
 		for (TSubclassOf<UGameplayEffect>& GameplayEffect : PassiveGameplayEffects)
 		{
 			FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
@@ -60,7 +60,7 @@ void ARPGCharacterBase::RemoveStartupGameplayAbilities()
 
 	if (GetLocalRole() == ROLE_Authority && bAbilitiesInitialized)
 	{
-		// Remove any abilities added from a previous call
+		// 移除上一次调用时添加的技能
 		TArray<FGameplayAbilitySpecHandle> AbilitiesToRemove;
 		for (const FGameplayAbilitySpec& Spec : AbilitySystemComponent->GetActivatableAbilities())
 		{
@@ -70,13 +70,13 @@ void ARPGCharacterBase::RemoveStartupGameplayAbilities()
 			}
 		}
 
-		// Do in two passes so the removal happens after we have the full list
+		// 分两次遍历：先收集完整列表，再统一移除
 		for (int32 i = 0; i < AbilitiesToRemove.Num(); i++)
 		{
 			AbilitySystemComponent->ClearAbility(AbilitiesToRemove[i]);
 		}
 
-		// Remove all of the passive gameplay effects that were applied by this character
+		// 移除该角色施加的所有被动 GameplayEffect
 		FGameplayEffectQuery Query;
 		Query.EffectSource = this;
 		AbilitySystemComponent->RemoveActiveEffects(Query);
@@ -96,7 +96,7 @@ void ARPGCharacterBase::RefreshSlottedGameplayAbilities()
 {
 	if (bAbilitiesInitialized)
 	{
-		// Refresh any invalid abilities and adds new ones
+		// 刷新无效的技能并添加新技能
 		RemoveSlottedGameplayAbilities(false);
 		AddSlottedGameplayAbilities();
 	}
@@ -104,7 +104,7 @@ void ARPGCharacterBase::RefreshSlottedGameplayAbilities()
 
 void ARPGCharacterBase::FillSlottedAbilitySpecs(TMap<FRPGItemSlot, FGameplayAbilitySpec>& SlottedAbilitySpecs)
 {
-	// First add default ones
+	// 先添加默认配置
 	for (const TPair<FRPGItemSlot, TSubclassOf<URPGGameplayAbility>>& DefaultPair : DefaultSlottedAbilities)
 	{
 		if (DefaultPair.Value.Get())
@@ -113,7 +113,7 @@ void ARPGCharacterBase::FillSlottedAbilitySpecs(TMap<FRPGItemSlot, FGameplayAbil
 		}
 	}
 
-	// Now potentially override with inventory
+	// 然后根据背包/槽位信息覆盖默认配置（如果有）
 	if (InventorySource)
 	{
 		const TMap<FRPGItemSlot, URPGItem*>& SlottedItemMap = InventorySource->GetSlottedItemMap();
@@ -122,18 +122,18 @@ void ARPGCharacterBase::FillSlottedAbilitySpecs(TMap<FRPGItemSlot, FGameplayAbil
 		{
 			URPGItem* SlottedItem = ItemPair.Value;
 
-			// Use the character level as default
+			// 默认使用角色等级
 			int32 AbilityLevel = GetCharacterLevel();
 
 			if (SlottedItem && SlottedItem->ItemType.GetName() == FName(TEXT("Weapon")))
 			{
-				// Override the ability level to use the data from the slotted item
+				// 用槽位物品中的数据覆盖技能等级
 				AbilityLevel = SlottedItem->AbilityLevel;
 			}
 
 			if (SlottedItem && SlottedItem->GrantedAbility)
 			{
-				// This will override anything from default
+				// 这里会覆盖默认配置中的同槽位技能
 				SlottedAbilitySpecs.Add(ItemPair.Key, FGameplayAbilitySpec(SlottedItem->GrantedAbility, AbilityLevel, INDEX_NONE, SlottedItem));
 			}
 		}
@@ -145,7 +145,7 @@ void ARPGCharacterBase::AddSlottedGameplayAbilities()
 	TMap<FRPGItemSlot, FGameplayAbilitySpec> SlottedAbilitySpecs;
 	FillSlottedAbilitySpecs(SlottedAbilitySpecs);
 	
-	// Now add abilities if needed
+	// 如有需要，则添加技能
 	for (const TPair<FRPGItemSlot, FGameplayAbilitySpec>& SpecPair : SlottedAbilitySpecs)
 	{
 		FGameplayAbilitySpecHandle& SpecHandle = SlottedAbilities.FindOrAdd(SpecPair.Key);
@@ -163,7 +163,7 @@ void ARPGCharacterBase::RemoveSlottedGameplayAbilities(bool bRemoveAll)
 
 	if (!bRemoveAll)
 	{
-		// Fill in map so we can compare
+		// 填充映射表，以便进行对比
 		FillSlottedAbilitySpecs(SlottedAbilitySpecs);
 	}
 
@@ -174,7 +174,7 @@ void ARPGCharacterBase::RemoveSlottedGameplayAbilities(bool bRemoveAll)
 
 		if (!bShouldRemove)
 		{
-			// Need to check desired ability specs, if we got here FoundSpec is valid
+			// 需要检查目标技能规格；若执行到这里，FoundSpec 一定有效
 			FGameplayAbilitySpec* DesiredSpec = SlottedAbilitySpecs.Find(ExistingPair.Key);
 
 			if (!DesiredSpec || DesiredSpec->Ability != FoundSpec->Ability || DesiredSpec->SourceObject != FoundSpec->SourceObject)
@@ -187,11 +187,11 @@ void ARPGCharacterBase::RemoveSlottedGameplayAbilities(bool bRemoveAll)
 		{	
 			if (FoundSpec)
 			{
-				// Need to remove registered ability
+				// 需要移除已注册的技能
 				AbilitySystemComponent->ClearAbility(ExistingPair.Value);
 			}
 
-			// Make sure handle is cleared even if ability wasn't found
+			// 即使没找到技能，也要确保句柄被清空
 			ExistingPair.Value = FGameplayAbilitySpecHandle();
 		}
 	}
@@ -201,7 +201,7 @@ void ARPGCharacterBase::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	// Try setting the inventory source, this will fail for AI
+	// 尝试将背包源设置为控制器（AI 可能会失败）
 	InventorySource = NewController;
 
 	if (InventorySource)
@@ -210,7 +210,7 @@ void ARPGCharacterBase::PossessedBy(AController* NewController)
 		InventoryLoadedHandle = InventorySource->GetInventoryLoadedDelegate().AddUObject(this, &ARPGCharacterBase::RefreshSlottedGameplayAbilities);
 	}
 
-	// Initialize our abilities
+	// 初始化技能信息
 	if (AbilitySystemComponent)
 	{
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
@@ -220,7 +220,7 @@ void ARPGCharacterBase::PossessedBy(AController* NewController)
 
 void ARPGCharacterBase::UnPossessed()
 {
-	// Unmap from inventory source
+	// 解除与背包源的绑定
 	if (InventorySource && InventoryUpdateHandle.IsValid())
 	{
 		InventorySource->GetSlottedItemChangedDelegate().Remove(InventoryUpdateHandle);
@@ -237,7 +237,7 @@ void ARPGCharacterBase::OnRep_Controller()
 {
 	Super::OnRep_Controller();
 
-	// Our controller changed, must update ActorInfo on AbilitySystemComponent
+	// 控制器发生变化，需要更新 AbilitySystemComponent 上的 ActorInfo
 	if (AbilitySystemComponent)
 	{
 		AbilitySystemComponent->RefreshAbilityActorInfo();
@@ -288,7 +288,7 @@ bool ARPGCharacterBase::SetCharacterLevel(int32 NewLevel)
 {
 	if (CharacterLevel != NewLevel && NewLevel > 0)
 	{
-		// Our level changed so we need to refresh abilities
+		// 等级改变，需要刷新技能
 		RemoveStartupGameplayAbilities();
 		CharacterLevel = NewLevel;
 		AddStartupGameplayAbilities();
@@ -322,7 +322,7 @@ void ARPGCharacterBase::GetActiveAbilitiesWithItemSlot(FRPGItemSlot ItemSlot, TA
 		{
 			TArray<UGameplayAbility*> AbilityInstances = FoundSpec->GetAbilityInstances();
 
-			// Find all ability instances executed from this slot
+			// 查找在该槽位触发执行的所有技能实例
 			for (UGameplayAbility* ActiveAbility : AbilityInstances)
 			{
 				ActiveAbilities.Add(Cast<URPGGameplayAbility>(ActiveAbility));
@@ -387,7 +387,7 @@ void ARPGCharacterBase::HandleDamage(float DamageAmount, const FHitResult& HitIn
 
 void ARPGCharacterBase::HandleHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags)
 {
-	// We only call the BP callback if this is not the initial ability setup
+	// 仅当不是初始技能初始化阶段时，才调用 BP 回调
 	if (bAbilitiesInitialized)
 	{
 		OnHealthChanged(DeltaValue, EventTags);
@@ -404,7 +404,7 @@ void ARPGCharacterBase::HandleManaChanged(float DeltaValue, const struct FGamepl
 
 void ARPGCharacterBase::HandleMoveSpeedChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags)
 {
-	// Update the character movement's walk speed
+	// 更新角色移动组件的行走速度
 	GetCharacterMovement()->MaxWalkSpeed = GetMoveSpeed();
 
 	if (bAbilitiesInitialized)
