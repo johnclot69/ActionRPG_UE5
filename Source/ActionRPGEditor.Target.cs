@@ -9,7 +9,7 @@ public class ActionRPGEditorTarget : TargetRules
 		: base(Target)
 	{
 		Type = TargetType.Editor;
-		ExtraModuleNames.AddRange(new string[] { "ActionRPG" });
+		ExtraModuleNames.AddRange(["ActionRPG"]);
 
 		DefaultBuildSettings = BuildSettingsVersion.V6;
 	}
